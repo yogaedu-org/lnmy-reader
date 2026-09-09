@@ -767,6 +767,10 @@ __THEME_CSS__
 
   // ---------- feedback JSON per card (#285) + flag (#283) ----------
   var FB = {};
+  // #302: the per-card feedback box is how KA iterates with Claude -- it copies JSON for a
+  // human to paste into a chat. The public has the flag and the Feedback link, which open a real
+  // issue form. Off means REMOVED; every use below guards on the element, so order does not matter.
+  if (((CONFIG.features || {}).cardFeedback === false) && $("fb")) $("fb").remove();
   try { FB = JSON.parse(localStorage.getItem(SK + "fb") || "{}") || {}; } catch (err) { FB = {}; }
   function fbSave(){ try { localStorage.setItem(SK + "fb", JSON.stringify(FB)); } catch (err) {} }
   function cid(){ var d = deck(), it = item(); return d && it ? (it.id || d.id + ":" + state.idx) : ""; }
@@ -792,6 +796,7 @@ __THEME_CSS__
     return out;
   }
   function fbRender(){
+    if (!$("fb")) return;                                  // stripped from this build (#302)
     var k = cid(), e = FB[k] || {}, ta = $("fbText"), st = $("fbStatus");
     if (!k){ $("fb").style.display = "none"; return; }
     $("fb").style.display = "block";
@@ -800,6 +805,7 @@ __THEME_CSS__
     st.textContent = !pending && e.copiedAt ? "copied " + hhmm(e.copiedAt) + " — type again to send an update" : "";
     var n = fbPendingList().length; $("fbPending").textContent = n ? String(n) : "";
   }
+  if ($("fb")) {
   $("fbText").addEventListener("input", function(){
     var k = cid(); if (!k) return;
     var e = FB[k] || {}; e.text = $("fbText").value; e.updatedAt = Date.now(); FB[k] = e; fbSave();
@@ -822,6 +828,7 @@ __THEME_CSS__
       else $("fbStatus").textContent = "copy blocked by the browser";
     });
   });
+  }   // end of the per-card feedback wiring (#302)
   var flagTimer = null;
   function flagSay(msg){
     var el = $("flagMsg"); el.textContent = msg; el.classList.add("show");

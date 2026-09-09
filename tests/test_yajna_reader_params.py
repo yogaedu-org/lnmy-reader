@@ -400,3 +400,46 @@ def test_feedback_never_points_at_a_private_repo(page, page_url):
         # to the public one -- the export's content scan refuses exactly that, and refused this
         # test's first draft. Pinning the destination excludes every other repo anyway.
         assert u.startswith("https://github.com/yogaedu-org/lnmy-reader/"), u
+
+
+def test_card_feedback_box_matches_what_this_build_declares(page, page_url):
+    """Our build keeps the box (it is how KA hands Claude a card); the public export strips it.
+    This file ships to both, so it asserts the page against its own config -- the lesson of the
+    top-bar regression, where a flag was added and only the on-configuration was ever tested."""
+    page.goto(page_url)
+    want = json.loads((READER / "config.json").read_text("utf-8")).get("features", {}).get("cardFeedback", True)
+    if want is False:
+        assert page.locator("#fb").count() == 0, "the box must be removed, not hidden"
+        assert page.locator("#fbText").count() == 0
+    else:
+        assert page.locator("#fb").count() == 1
+        assert page.locator("#fbText").is_visible()
+
+
+def test_the_flag_still_works_when_the_feedback_box_is_gone(browser, tmp_path_factory):
+    """The named failure: the box holds #fbStatus, which the flag used to write into. Removing the
+    box could have left the flag throwing on a null element -- silently, since a JS error stops the
+    handler and the page looks merely unresponsive."""
+    import json as _json, importlib.util as _iu
+    out = tmp_path_factory.mktemp("nofb")
+    for n in ("decks.json", "template.html", "build.py"):
+        (out / n).write_bytes((READER / n).read_bytes())
+    cfg = _json.loads((READER / "config.json").read_text("utf-8"))
+    cfg.setdefault("features", {})["cardFeedback"] = False
+    (out / "config.json").write_text(_json.dumps(cfg, ensure_ascii=False), "utf-8")
+    spec = _iu.spec_from_file_location("yr_nofb", out / "build.py")
+    mod = _iu.module_from_spec(spec); spec.loader.exec_module(mod)
+    built = mod.build(out / "r.html", here=out)
+
+    ctx = browser.new_context(permissions=["clipboard-read", "clipboard-write"])
+    pg = ctx.new_page()
+    errors = []
+    pg.on("pageerror", lambda e: errors.append(str(e)))
+    pg.goto(built.resolve().as_uri())
+    assert pg.locator("#fb").count() == 0
+    pg.evaluate("window.open=function(u){window.__o=u;};")
+    pg.click("#flagBtn")
+    pg.wait_for_selector("#flagMsg.show")
+    assert "filled in" in pg.locator("#flagMsg").inner_text().lower()
+    assert errors == [], errors
+    ctx.close()
