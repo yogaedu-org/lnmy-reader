@@ -1,0 +1,103 @@
+{
+ "occasion": "Sri Lakshmi-Narayana Mahayajna",
+ "title": "Readings for the Yajna",
+ "dates": "8–12 September 2026",
+ "output": "yajna-reader.html",
+ "storageKey": "yajna",
+ "tabs": [
+  {
+   "id": "yajna",
+   "label": "On Yajna",
+   "kinds": [
+    "yajna"
+   ]
+  },
+  {
+   "id": "passages",
+   "label": "Readings",
+   "kinds": [
+    "passages"
+   ]
+  },
+  {
+   "id": "stories",
+   "label": "Stories",
+   "kinds": [
+    "stories"
+   ]
+  },
+  {
+   "id": "quotes",
+   "label": "Quotes",
+   "kinds": [
+    "quotes"
+   ]
+  }
+ ],
+ "auto": {
+  "defaultSeconds": 15,
+  "minSeconds": 0,
+  "maxSeconds": 600,
+  "loop": true,
+  "hudFadeSeconds": 8
+ },
+ "features": {
+  "progressScrub": true,
+  "sourceLinks": true,
+  "showSourceFile": false,
+  "liveDefault": false
+ },
+ "theme": {
+  "light": {
+   "ash": "#EFEEE9",
+   "ash-2": "#E4E2DB",
+   "surface": "#FBFAF7",
+   "ink": "#191816",
+   "ink-2": "#3B3833",
+   "muted": "#6C675E",
+   "line": "#D8D4C9",
+   "ember": "#7A2E1E",
+   "ember-soft": "#9C4A33",
+   "leaf": "#1F4D46"
+  },
+  "dark": {
+   "ash": "#141310",
+   "ash-2": "#1B1A16",
+   "surface": "#1E1D19",
+   "ink": "#EFEBE1",
+   "ink-2": "#D3CDC0",
+   "muted": "#9A9487",
+   "line": "#33302A",
+   "ember": "#E08663",
+   "ember-soft": "#C96E4D",
+   "leaf": "#7FB5AA"
+  }
+ },
+ "type": {
+  "readSize": "1.5rem",
+  "leading": 1.62,
+  "measureEm": 34,
+  "roomSize": "1.7rem"
+ },
+ "repo": "yogaedu-org/lnmy-reader",
+ "project": ".",
+ "feedback": {
+  "docUrl": "",
+  "url": "https://github.com/yogaedu-org/lnmy-reader/issues/new?template=yajna-reader-feedback.yml",
+  "text": " is welcome."
+ },
+ "audio": {
+  "src": "",
+  "loop": true,
+  "volume": 0.6
+ },
+ "version": "round-6b 2026-09-09",
+ "fit": {
+  "quoteMinPx": 24,
+  "quoteMaxPx": 52
+ },
+ "build": {
+  "commit": "feed5fed4",
+  "when": "2026-09-09 21:00 (NST)"
+ }
+}

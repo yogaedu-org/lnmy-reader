@@ -1,0 +1,44 @@
+name: Yajna Reader feedback
+description: Something is off on a card in the Yajna Reader — wrong page, a differing word, attribution, layout.
+title: "[reader] "
+labels: ["type:content", "area:reader"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping get these readings right 🙏
+        If you came here from the ⚑ on a card, the card's reference is already on your clipboard —
+        paste it into the first box.
+  - type: input
+    id: card
+    attributes:
+      label: Which card
+      description: Paste the copied reference, or name the tab / deck / card number.
+      placeholder: "[Yajna Reader flag] Readings / Sivananda passages / 7 of 42 | ... "
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What is off
+      options:
+        - The text differs from the book
+        - Wrong page or citation
+        - Wrong attribution (who said it)
+        - Layout or readability
+        - The link to the source does not go to the right place
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: detail
+    attributes:
+      label: What should it say instead
+      description: Quote the passage as it stands in the book, if you have it in front of you.
+    validations:
+      required: true
+  - type: input
+    id: name
+    attributes:
+      label: Your name (optional)
+      description: So the correction can be credited.

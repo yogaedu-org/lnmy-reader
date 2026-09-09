@@ -1,0 +1,1037 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found]){display:none!important}</style></head><body>
+<title>Yajna Reader</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,600;1,300;1,400&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<style>
+:root{
+  --ash:#EFEEE9; --ash-2:#E4E2DB; --surface:#FBFAF7; --ink:#191816; --ink-2:#3B3833;
+  --muted:#6C675E; --line:#D8D4C9; --ember:#7A2E1E; --ember-soft:#9C4A33; --leaf:#1F4D46;
+  --shadow:0 1px 2px rgba(25,24,22,.05),0 8px 24px -16px rgba(25,24,22,.28);
+  --serif:"Spectral",Georgia,"Times New Roman",serif;
+  --sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --read:1.5rem; --lead:1.62; --measure:34; --room:1.7rem;   /* measure is unitless: em resolves where it is used */
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ash:#141310; --ash-2:#1B1A16; --surface:#1E1D19; --ink:#EFEBE1; --ink-2:#D3CDC0;
+    --muted:#9A9487; --line:#33302A; --ember:#E08663; --ember-soft:#C96E4D; --leaf:#7FB5AA;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px -18px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --ash:#141310; --ash-2:#1B1A16; --surface:#1E1D19; --ink:#EFEBE1; --ink-2:#D3CDC0;
+  --muted:#9A9487; --line:#33302A; --ember:#E08663; --ember-soft:#C96E4D; --leaf:#7FB5AA;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px -18px rgba(0,0,0,.8);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ash);color:var(--ink);font-family:var(--serif);
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:1120px;margin:0 auto;padding:0 clamp(16px,4vw,40px) 64px}
+
+header{padding:clamp(22px,4vw,40px) 0 0}
+.occasion{font-family:var(--sans);font-size:.78rem;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ember);margin:0 0 9px}
+h1{font-weight:300;font-size:clamp(1.9rem,4.2vw,2.9rem);line-height:1.08;
+  letter-spacing:-.015em;margin:0;text-wrap:balance}
+.dates{font-family:var(--sans);font-size:.95rem;color:var(--muted);margin:9px 0 0}
+
+nav.tabs{display:flex;flex-wrap:wrap;gap:2px;margin:26px 0 0;border-bottom:1px solid var(--line)}
+.tab{appearance:none;background:none;border:0;border-bottom:2px solid transparent;
+  font-family:var(--sans);font-size:1rem;font-weight:500;color:var(--muted);
+  padding:12px 16px;cursor:pointer;white-space:nowrap}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ember)}
+.tab:focus-visible{outline:2px solid var(--ember);outline-offset:-2px;border-radius:3px}
+.tab .n{font-family:var(--sans);font-size:.78rem;color:var(--muted);margin-left:7px;
+  font-variant-numeric:tabular-nums}
+
+.decks{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0}
+.deck{appearance:none;font-family:var(--sans);font-size:.85rem;font-weight:500;
+  background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:999px;
+  padding:6px 14px;cursor:pointer}
+.deck:hover{color:var(--ink);border-color:var(--muted)}
+.deck[aria-pressed="true"]{background:var(--ink);color:var(--ash);border-color:var(--ink)}
+.deck:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
+
+.progress{margin:20px 0 0;display:flex;align-items:center;gap:16px}
+.bar{flex:1;display:flex;gap:3px;min-width:0}
+.seg{flex:1 1 0;height:6px;border-radius:2px;background:var(--ash-2);min-width:2px;
+  transition:background .18s ease}
+.seg.done{background:var(--ember-soft)}
+.seg.now{background:var(--ember)}
+.seg.pick{outline:1px solid var(--ember-soft);outline-offset:1px}
+.bar.scrub{cursor:pointer;padding:9px 0;margin:-9px 0;touch-action:none;border-radius:4px}
+.bar.scrub:hover .seg:not(.now):not(.done){background:var(--line)}
+.bar.scrub:focus-visible{outline:2px solid var(--ember);outline-offset:4px}
+.count{font-family:var(--sans);font-size:.9rem;font-weight:500;color:var(--muted);
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.count b{color:var(--ink);font-weight:600}
+
+main{margin:24px 0 0}
+article{background:var(--surface);border:1px solid var(--line);border-radius:4px;
+  box-shadow:var(--shadow);overflow:hidden;position:relative}
+
+/* ---- the part the room sees ---- */
+.stage{padding:clamp(26px,4.4vw,54px);display:flex;flex-direction:column;gap:18px}
+.eyebrow{font-family:var(--sans);font-size:.74rem;font-weight:600;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--leaf);margin:0}
+h2{font-weight:400;font-size:clamp(1.5rem,2.8vw,2.1rem);line-height:1.16;margin:0;
+  text-wrap:balance;letter-spacing:-.01em}
+.said{font-family:var(--sans);font-size:1rem;line-height:1.5;color:var(--muted);margin:0;
+  padding-bottom:2px}
+.said b{color:var(--ink-2);font-weight:600}
+.body{font-size:var(--read);line-height:var(--lead);color:var(--ink-2);max-width:calc(var(--measure) * 1em)}
+.body p{margin:0 0 .92em}
+.body p:last-child{margin-bottom:0}
+.body em{font-style:italic}
+.body strong{font-weight:600;color:var(--ink)}
+
+/* ---- quotes ---- */
+.is-quote .stage{align-items:center;text-align:center;padding-block:clamp(34px,5.6vw,68px)}
+.is-quote h2{display:none}
+.is-quote .body{font-size:clamp(1.55rem,3vw,2.2rem);line-height:1.36;color:var(--ink);
+  font-weight:300;max-width:23em;position:relative;padding-top:36px}
+.is-quote .body::before{content:"\201C";position:absolute;top:-16px;left:50%;
+  transform:translateX(-50%);font-size:4.6rem;line-height:1;color:var(--ember);opacity:.3}
+.is-quote .said{order:3;font-size:1.05rem}
+.is-quote .attrib{order:4;font-family:var(--serif);font-size:1.15rem;color:var(--ink);
+  font-style:italic;margin:0}
+.attrib{display:none}
+.is-quote .attrib{display:block}
+
+/* ---- reference strip ---- */
+.refs{border-top:1px solid var(--line);background:var(--ash-2);
+  padding:20px clamp(26px,4.4vw,54px) 24px}
+.refs-h{font-family:var(--sans);font-size:.68rem;font-weight:600;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--muted);margin:0 0 12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px 26px;
+  font-family:var(--sans)}
+.grid div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.grid dt{color:var(--muted);font-size:.7rem;letter-spacing:.09em;text-transform:uppercase}
+.grid dd{margin:0;color:var(--ink);font-size:.92rem;font-weight:500;overflow-wrap:anywhere}
+.grid a{color:var(--ember);text-decoration:underline;text-underline-offset:2px}
+.why{margin:16px 0 0;font-family:var(--serif);font-size:1rem;line-height:1.55;
+  color:var(--ink-2);max-width:60em}
+.why b{font-family:var(--sans);font-size:.7rem;font-weight:600;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--muted);display:block;margin-bottom:3px}
+.caveat{margin:10px 0 0;font-family:var(--sans);font-size:.82rem;color:var(--muted);
+  font-style:italic}
+.fb{margin:18px 0 0;padding-top:14px;border-top:1px dashed var(--line)}
+/* ---------- edit mode (#280) ---------- */
+.editor{margin:20px 0 0;background:var(--surface);border:1px solid var(--line);border-radius:4px;box-shadow:var(--shadow);
+  padding:16px clamp(16px,3vw,28px) 18px;font-family:var(--sans)}
+.ed-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.ed-title{font-weight:600;color:var(--ink)}
+.ed-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ed-actions .btn{padding:7px 14px;font-size:.85rem;box-shadow:none;white-space:nowrap}
+.ed-help{font-size:.85rem;color:var(--muted);margin:8px 0 12px;line-height:1.5}
+.ed-help code{font-size:.8rem;background:var(--ash-2);padding:1px 5px;border-radius:3px}
+.ed-list{list-style:none;margin:0;padding:0;counter-reset:card}
+.ed-row{display:grid;grid-template-columns:22px 26px 1fr auto;gap:10px;align-items:center;padding:8px 6px;border-top:1px solid var(--line);
+  cursor:grab;counter-increment:card}
+.ed-row.hidden-card{opacity:.45}
+.ed-row.dragging{opacity:.3}
+.ed-row.over{border-top:2px solid var(--ember)}
+.ed-row .n::before{content:counter(card);font-size:.75rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.ed-row .t{font-family:var(--serif);font-size:1rem;color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ed-row .t small{font-family:var(--sans);color:var(--muted);font-size:.78rem;margin-left:8px}
+.ed-row .t .edited{color:var(--ember);font-size:.72rem;margin-left:8px;letter-spacing:.06em;text-transform:uppercase}
+.ed-row .ops{display:flex;gap:4px}
+.ed-row .ops button{appearance:none;background:none;border:1px solid transparent;border-radius:4px;padding:3px 7px;cursor:pointer;
+  color:var(--muted);font-size:.95rem}
+.ed-row .ops button:hover{border-color:var(--line);color:var(--ink)}
+.ed-form{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px 12px;padding:6px 0 8px 48px;cursor:default}
+.ed-form label{display:flex;flex-direction:column;gap:3px;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.ed-form input,.ed-form textarea{font:inherit;font-family:var(--sans);font-size:.9rem;letter-spacing:0;text-transform:none;padding:6px 8px;
+  border:1px solid var(--line);border-radius:4px;background:var(--surface);color:var(--ink)}
+.ed-form textarea{font-family:var(--serif);font-size:1rem;min-height:120px;grid-column:1/-1}
+.ed-form .full{grid-column:1/-1}
+body.edit-on .decks{display:flex}
+body.fit-on .editor,body.live-on .editor{display:none!important}
+.fb textarea{width:100%;font:inherit;font-family:var(--sans);font-size:.92rem;line-height:1.45;padding:8px 10px;
+  border:1px solid var(--line);border-radius:4px;background:var(--surface);color:var(--ink);resize:vertical}
+.fb textarea:focus-visible{outline:2px solid var(--ember);outline-offset:1px}
+.fb-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px}
+.fb-row .btn{padding:7px 14px;font-size:.85rem;box-shadow:none;white-space:nowrap}
+.fb-status{font-family:var(--sans);font-size:.8rem;color:var(--muted)}
+#fbPending:empty{display:none}
+.site-credit{margin:10px 0 0;font-family:var(--sans);font-size:.85rem;color:var(--ink-2)}
+.icon{appearance:none;background:none;border:1px solid transparent;border-radius:4px;color:var(--muted);
+  font-size:1.05rem;line-height:1;padding:3px 7px;cursor:pointer}
+.icon:hover{color:var(--ember);border-color:var(--line)}
+.icon:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
+.pipe{display:inline-block;width:1px;height:18px;background:var(--line);margin:0 4px}
+body.fit-on .site-credit{display:none}
+.site-credit a{color:var(--ember);text-decoration:none}
+.site-credit a:hover{text-decoration:underline}
+.site-credit .muted{color:var(--muted)}
+#fbPending{background:var(--ember);color:var(--ash);border-radius:999px;padding:0 7px;font-size:.75rem;margin-left:4px}
+
+.controls{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:20px 0 0}
+.controls .btn{padding:9px 18px;font-size:.92rem;box-shadow:none;white-space:nowrap;flex:none}
+.controls .hint{flex:1;text-align:center}
+.btn{appearance:none;font-family:var(--sans);font-size:1rem;font-weight:500;
+  background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:4px;
+  padding:13px 26px;cursor:pointer;box-shadow:var(--shadow)}
+.btn:hover:not(:disabled){border-color:var(--muted)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
+.btn.primary{background:var(--ink);color:var(--ash);border-color:var(--ink)}
+.hint{font-family:var(--sans);font-size:.82rem;color:var(--muted)}
+.hint code{font-size:.78rem;background:var(--ash-2);padding:1px 5px;border-radius:3px}
+kbd{font-family:var(--sans);font-size:.76rem;border:1px solid var(--line);border-bottom-width:2px;
+  border-radius:3px;padding:1px 6px;color:var(--ink);background:var(--ash-2)}
+
+footer{margin:40px 0 0;padding-top:20px;border-top:1px solid var(--line);
+  font-family:var(--sans);font-size:.85rem;color:var(--muted);line-height:1.6}
+footer b{color:var(--ink-2);font-weight:600}
+
+
+.credit{font-family:var(--sans);font-size:1rem;line-height:1.55;color:var(--ink-2);margin:0;
+  display:flex;flex-wrap:wrap;gap:4px 12px}
+.credit .who{font-weight:600;color:var(--ink)}
+.credit .sep{color:var(--line)}
+.source-line{font-family:var(--sans);font-size:.94rem;line-height:1.5;color:var(--muted);margin:0}
+.source-line b{color:var(--ink-2);font-weight:600}
+.src{color:inherit;text-decoration:none}
+.src:hover{text-decoration:underline;text-underline-offset:3px}
+.src.ext{font-family:var(--sans);font-size:.78em;opacity:.45;margin-left:.6em;text-decoration:none}
+.src.ext:hover{opacity:.9}
+.is-quote .credit,.is-quote .source-line{justify-content:center;text-align:center}
+/* ---------- live mode: hide everything that is not the reading ---------- */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding-top:clamp(18px,3vw,30px)}
+.live{display:inline-flex;align-items:center;gap:10px;font-family:var(--sans);
+  font-size:.82rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);cursor:pointer;user-select:none;background:none;border:0;padding:0}
+.live:focus-visible{outline:2px solid var(--ember);outline-offset:3px;border-radius:4px}
+.switch{width:42px;height:24px;border-radius:999px;background:var(--ash-2);
+  border:1px solid var(--line);position:relative;transition:background .18s ease}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;
+  border-radius:50%;background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.25);
+  transition:transform .18s ease}
+.live[aria-pressed="true"]{color:var(--ember)}
+.live[aria-pressed="true"] .switch{background:var(--ember);border-color:var(--ember)}
+.live[aria-pressed="true"] .switch::after{transform:translateX(18px)}
+body.live-on .dates,
+body.live-on .refs,
+body.live-on footer,
+body.live-on .tab .n{display:none}
+body.live-on .hint{visibility:hidden}
+body.live-on article{min-height:56vh;display:flex;flex-direction:column;justify-content:center}
+body.live-on .stage{padding-block:clamp(34px,6vw,74px)}
+
+/* ---------- auto-advance + fit-to-window (waitroom view, #259) ---------- */
+.autobox{display:inline-flex;align-items:center;gap:8px;font-family:var(--sans);font-size:.82rem;
+  font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.autobox input{width:56px;font:inherit;font-size:.9rem;font-weight:500;letter-spacing:0;padding:4px 6px;
+  border:1px solid var(--line);border-radius:4px;background:var(--surface);color:var(--ink);text-align:center}
+.autobox input:focus-visible{outline:2px solid var(--ember);outline-offset:1px}
+.topbar .right{display:inline-flex;align-items:center;gap:18px}
+body.fit-on .topbar,body.fit-on header,body.fit-on nav.tabs,body.fit-on .decks,body.fit-on .progress,
+body.fit-on .controls,body.fit-on footer,body.fit-on .refs{display:none}
+body.fit-on{overflow:hidden}
+body.fit-on .decks{display:none!important}
+body.fit-on .wrap{max-width:none;padding:0}
+body.fit-on main{margin:0}
+body.fit-on article{position:fixed;inset:0;min-height:0;border:0;border-radius:0;box-shadow:none;
+  display:flex;flex-direction:row;align-items:flex-start;justify-content:center;overflow:auto;z-index:10;background:var(--surface)}
+/* Auto switches Live on, and Live makes the article a centred column — in fit view the row above wins */
+body.fit-on.is-quote article{align-items:stretch}
+body.fit-on.is-quote .stage{min-height:100%}
+body.fit-on .stage{width:100%;max-width:none;padding:clamp(24px,4vw,64px) clamp(24px,5vw,80px);gap:1.2vh;flex:none;
+  justify-content:flex-start}
+/* readings (stories, passages, On Yajna): the SAME measure and size in every mode — nothing rescales;
+   a long reading scrolls inside the card (#296). */
+body.fit-on:not(.is-quote) .stage{align-items:stretch;text-align:left;max-width:calc(var(--measure) * var(--room) + 2*clamp(24px,5vw,80px));margin:0 auto}
+body.fit-on:not(.is-quote) h2{font-size:clamp(1.4rem,2.2vw,1.9rem);line-height:1.15}
+body.fit-on:not(.is-quote) .eyebrow{font-size:.8rem}
+body.fit-on:not(.is-quote) .credit,body.fit-on:not(.is-quote) .source-line{justify-content:flex-start;text-align:left;font-size:1rem}
+body.fit-on:not(.is-quote) .body{max-width:calc(var(--measure) * 1em);font-size:var(--room);line-height:1.5;color:var(--ink);text-align:left}
+body.fit-on:not(.is-quote) .body p{margin:0 0 .6em}
+/* quotes: the two top lines stay where they start; the mark is a fixed ornament; only the quote and its
+   attribution scale, between --qmin and --qmax (#296). */
+body.fit-on.is-quote .stage{align-items:center;text-align:center}
+body.fit-on.is-quote .eyebrow{font-size:.8rem}
+body.fit-on.is-quote .credit,body.fit-on.is-quote .source-line{justify-content:center;text-align:center;font-size:1rem}
+body.fit-on.is-quote .body{margin-top:auto;max-width:min(92vw,24em);font-size:var(--fit,2rem);line-height:1.3;color:var(--ink);
+  text-align:center;font-weight:300;padding-top:3rem}
+body.fit-on.is-quote .body::before{font-size:4rem;top:-.25rem;line-height:1}
+body.fit-on.is-quote .attrib{margin-bottom:auto;font-size:max(1.1rem,calc(var(--fit,2rem)*.45))}
+.fitbar{position:fixed;right:18px;bottom:14px;z-index:11;font-family:var(--sans);font-size:.78rem;
+  color:var(--muted);opacity:.55;letter-spacing:.04em;font-variant-numeric:tabular-nums;pointer-events:none}
+.fitbar kbd{opacity:.8}
+.fitbar{transition:opacity .7s ease}
+.fitbar.faded{opacity:0}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:640px){
+  :root{--read:1.25rem}
+  /* #298: the right group is a no-wrap row of 4 icons + Live + Auto + seconds — at phone
+     width it pushed the page sideways. Let both rows wrap instead of scrolling. */
+  .topbar{flex-wrap:wrap;row-gap:12px;gap:12px}
+  .topbar .right{flex-wrap:wrap;gap:14px;row-gap:12px;justify-content:flex-end}
+  .controls{flex-direction:column-reverse;align-items:stretch}
+  .btn{width:100%}
+}
+/* #301: the flag sits on the card, top right, and says so where you are looking */
+.card-flag{position:absolute;top:10px;right:12px;z-index:5}
+.flag-msg{position:absolute;top:15px;right:46px;z-index:5;font-family:var(--sans);font-size:.78rem;
+  color:var(--muted);opacity:0;transition:opacity .25s ease;pointer-events:none;white-space:nowrap}
+.flag-msg.show{opacity:1}
+/* footer credit + build stamp, after the yogaedu.org study tool */
+.feedback-link{color:var(--ember);font-weight:600}
+.build-stamp{margin:6px 0 0;font-family:var(--sans);font-size:.68rem;letter-spacing:.02em;
+  color:var(--muted);opacity:.55}
+.build-stamp code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.66rem}
+body.fit-on .build-stamp{display:none}
+.linkbar{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin:.4rem 0 .6rem}
+.linkbar input{flex:1 1 18rem;min-width:0;font:inherit;font-size:.9rem;padding:.35rem .5rem;border:1px solid var(--rule,#ccc);border-radius:.3rem;background:inherit;color:inherit}
+</style>
+__THEME_CSS__
+<div class="wrap">
+  <div class="topbar">
+    <button class="live" id="editBtn" type="button" aria-pressed="false" title="Select, reorder, hide and edit cards; copy the result as JSON (E)">
+      <span class="switch" aria-hidden="true"></span><span>Edit</span></button>
+    <span class="right">
+      <button class="icon" id="infoBtn" type="button" title="About this reader" aria-expanded="false">&#9432;</button>
+      <button class="icon" id="linkBtn" type="button" title="Parameters: apply tab / deck / cards / card / auto / fit / live to this view, or copy a link to it" aria-expanded="false">&#128279;</button>
+      <button class="icon" id="themeBtn" type="button" title="Theme: follows your device">&#9680;</button>
+      <button class="live" id="live" type="button" aria-pressed="false"
+              title="Hide counts and reference material for screen sharing (L)">
+        <span class="switch" aria-hidden="true"></span><span>Live</span></button>
+      <span class="pipe" aria-hidden="true"></span>
+      <span class="autobox">
+        <button class="live" id="auto" type="button" aria-pressed="false"
+                title="Full-window view; advances every N seconds, 0 = stays on the card (A). Esc leaves.">
+          <span class="switch" aria-hidden="true"></span><span>Auto</span></button>
+        <input id="autoSecs" type="number" min="0" max="600" step="1" value="15" aria-label="seconds per reading, 0 = manual"><span>sec</span>
+      </span>
+    </span>
+  </div>
+  <p class="site-credit" id="siteCredit" hidden>Created with &#129504;&#10084;&#65039;&#128591; by <a href="https://yogicapproach.com" target="_blank" rel="noopener">YogicApproach</a>.
+    <span class="muted">&middot; Yajna Reader &middot; <span id="creditRepo"></span></span>
+    <span class="muted" id="feedbackNote" hidden>&middot;
+      <a id="feedbackLink" class="feedback-link" href="#" target="_blank" rel="noopener">Feedback</a><span
+        id="feedbackText"></span><a id="feedbackArrow" class="src ext" href="#" target="_blank"
+        rel="noopener" aria-label="open the feedback form">&#8599;</a></span></p>
+  <p class="build-stamp" id="buildStamp" hidden>Last updated &middot; <time id="buildWhen"></time> &middot; <code id="buildCommit"></code></p>
+  <div class="linkbar" id="linkbar" hidden>
+    <input id="linkIn" type="text" spellcheck="false" autocomplete="off" aria-label="URL parameters for this view"
+           placeholder="tab=stories&amp;deck=stories-sivananda-stories&amp;cards=1-3,7&amp;auto=8">
+    <button class="btn primary" id="linkApply" type="button" title="Show the view these parameters describe (Enter)">Apply</button>
+    <button class="btn" id="linkCopy" type="button" title="Copy a link to this view">Copy link</button>
+    <span class="muted" id="linkMsg" aria-live="polite"></span>
+  </div>
+  <div class="fitbar" id="fitbar" hidden></div>
+  <audio id="bgm" preload="none" hidden></audio>
+  <header>
+    <p class="occasion" id="occasion">Sri Lakshmi-Narayana Mahayajna</p>
+    <h1>Readings for the Yajna</h1>
+    <p class="dates" id="dates"></p>
+  </header>
+
+  <nav class="tabs" id="tabs" role="tablist" aria-label="Reading types"></nav>
+  <div class="decks" id="decks"></div>
+
+  <div class="progress">
+    <div class="bar" id="bar" aria-hidden="true"></div>
+    <div class="count" id="count"></div>
+  </div>
+
+  <section class="editor" id="editor" hidden>
+    <div class="ed-head">
+      <span class="ed-title">Deck editor — <span id="edDeck"></span></span>
+      <span class="ed-actions">
+        <button class="btn" id="edSelAll" type="button">Select all</button>
+        <button class="btn" id="edSelNone" type="button">Select none</button>
+        <button class="btn primary" id="edCopySel" type="button">Copy selection JSON <span id="edSelN"></span></button>
+        <button class="btn" id="edCopyPatch" type="button">Copy full patch</button>
+        <button class="btn" id="edReset" type="button" title="Forget every local change (order, hidden, edits, selection)">Reset</button>
+        <span class="fb-status" id="edStatus"></span>
+      </span>
+    </div>
+    <p class="ed-help">Drag rows to reorder. Tick to select for a hosted deck or an export. Eye hides a card from the reading view. Pencil edits title, credit, theme, notes — and the text, which must then pass <code>validate.py</code>. Everything is local to this browser until you copy the JSON and hand it to <code>build.py --apply</code> / <code>--select</code>.</p>
+    <ol class="ed-list" id="edList"></ol>
+  </section>
+
+  <main>
+    <article id="card" aria-live="polite">
+      <span class="flag-msg" id="flagMsg" role="status" aria-live="polite"></span>
+      <button class="icon card-flag" id="flagBtn" type="button"
+              title="Flag this card: copies its reference and opens the feedback form">&#9873;</button>
+      <div class="stage">
+        <p class="eyebrow" id="eyebrow"></p>
+        <h2 id="title"></h2>
+        <p class="credit" id="credit"></p>
+        <p class="source-line" id="sourceLine"></p>
+        <div class="body" id="body"></div>
+        <p class="attrib" id="attrib"></p>
+      </div>
+      <div class="refs">
+        <p class="refs-h">Reference</p>
+        <div class="grid" id="grid"></div>
+        <p class="why" id="why"></p>
+        <p class="caveat" id="caveat"></p>
+        <div class="fb" id="fb">
+          <p class="refs-h">Feedback on this card</p>
+          <textarea id="fbText" rows="3" placeholder="What is off? Wrong page, a word that differs from the source, attribution, layout…"></textarea>
+          <div class="fb-row">
+            <button class="btn" id="fbCopy" type="button">Copy as JSON</button>
+            <button class="btn" id="fbCopyAll" type="button">Copy all pending <span id="fbPending"></span></button>
+            <span class="fb-status" id="fbStatus"></span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <div class="controls">
+      <button class="btn" id="prev" type="button">&#8592;&nbsp; Previous</button>
+      <span class="hint"><kbd>&#8592;</kbd> <kbd>&#8594;</kbd> move &middot; drag the bar &middot; <kbd>Home</kbd> <kbd>End</kbd> &middot; <code>?cards=1-5,9</code> picks &middot; <kbd>space</kbd> for next &middot; <kbd>L</kbd> for live &middot; <kbd>A</kbd> auto-advance full window &middot; <kbd>F</kbd> full screen</span>
+      <button class="btn primary" id="next" type="button">Next &nbsp;&#8594;</button>
+    </div>
+  </main>
+
+  <footer id="foot"></footer>
+</div>
+
+<script id="config" type="application/json">__CONFIG_JSON__</script>
+<script id="payload" type="application/json">__PAYLOAD_JSON__</script>
+<script>
+(function(){
+  "use strict";
+  var DATA = JSON.parse(document.getElementById("payload").textContent);
+  var CONFIG = JSON.parse(document.getElementById("config").textContent);
+  var FEAT = CONFIG.features || {}, AUTO = CONFIG.auto || {};
+  var SK = (CONFIG.storageKey || "yajna") + "-";
+  var TABS = (CONFIG.tabs || []).map(function(t){ return {id:t.id, label:t.label, kinds:t.kinds}; });
+  DATA.decks.forEach(function(d){ d.items = d.items.filter(function(it){ return !it.hidden; }); });
+  TABS.forEach(function(t){
+    t.decks = DATA.decks.filter(function(d){ return t.kinds.indexOf(d.kind) > -1; });
+    t.count = t.decks.reduce(function(n,d){ return n + d.items.length; }, 0);
+  });
+  TABS = TABS.filter(function(t){ return t.count > 0; });
+
+  var state = {tab:0, deck:0, idx:0}, pos = {}, PICKS = {};
+  function readParams(){   // #297: the fragment form works where a host strips the query string
+    var q = new URLSearchParams(location.search);
+    new URLSearchParams((location.hash || "").replace(/^#\??/, "")).forEach(function(v, k){ q.set(k, v); });
+    return q;
+  }
+  var Q = readParams();
+  function pick(){ var p = PICKS[pkey()]; return p && p.length ? p : null; }
+  function parseCards(spec, d){
+    var out = {}, ids = d.items.map(function(it){ return it.id || ""; });
+    (spec || "").split(",").forEach(function(tok){
+      tok = tok.trim(); if (!tok) return;
+      var m = /^(\d+)\s*-\s*(\d+)$/.exec(tok);
+      if (m){ for (var i = +m[1]; i <= +m[2]; i++) if (i >= 1 && i <= ids.length) out[i-1] = 1; return; }
+      if (/^\d+$/.test(tok)){ if (+tok >= 1 && +tok <= ids.length) out[+tok-1] = 1; return; }
+      ids.forEach(function(id, i){ if (id === tok || id.slice(id.indexOf(":")+1) === tok) out[i] = 1; });
+    });
+    return Object.keys(out).map(Number).sort(function(a,b){ return a-b; });
+  }
+  function nearPick(i){ var pk = pick(); if (!pk) return i; var best = pk[0];
+    pk.forEach(function(p){ if (Math.abs(p - i) < Math.abs(best - i)) best = p; }); return best; }
+  var $ = function(id){ return document.getElementById(id); };
+  var hasMarked = typeof window.marked !== "undefined" && window.marked.parse;
+  if (hasMarked) window.marked.setOptions({breaks:false, gfm:true, mangle:false, headerIds:false});
+
+  function deck(){ return TABS[state.tab].decks[state.deck]; }
+  function item(){ var d = deck(); return d ? d.items[state.idx] : null; }
+  function pkey(){ return TABS[state.tab].id + ":" + state.deck; }
+  function applyQuery(){
+    if (Q.get("tab")){ var ti = TABS.map(function(t){ return t.id; }).indexOf(Q.get("tab")); if (ti > -1) state.tab = ti; }
+    if (Q.get("deck")){ var di = TABS[state.tab].decks.map(function(d){ return d.id; }).indexOf(Q.get("deck")); if (di > -1) state.deck = di; }
+    if (Q.get("cards")){ var d = deck(); if (d){ var pk = parseCards(Q.get("cards"), d); if (pk.length){ PICKS[pkey()] = pk; state.idx = pk[0]; } } }
+    if (Q.get("card")){ var d2 = deck(); if (d2){ var one = parseCards(Q.get("card"), d2); if (one.length) state.idx = one[0]; } }
+  }
+
+  function esc(s){ return (s||"").replace(/[&<>"]/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
+
+  function toHTML(md){
+    if (hasMarked) return window.marked.parse(md);
+    return md.split(/\n{2,}/).map(function(p){
+      return "<p>" + esc(p.replace(/\n/g," ").trim()) + "</p>"; }).join("");
+  }
+
+  function buildTabs(){
+    var f = document.createDocumentFragment();
+    TABS.forEach(function(t,i){
+      var b = document.createElement("button");
+      b.className = "tab"; b.type = "button"; b.setAttribute("role","tab");
+      b.setAttribute("aria-selected", i===state.tab ? "true" : "false");
+      b.innerHTML = esc(t.label) + '<span class="n">' + t.count + "</span>";
+      b.addEventListener("click", function(){
+        pos[pkey()] = state.idx; state.tab = i; state.deck = 0;
+        state.idx = pos[pkey()] || 0; render(); });
+      f.appendChild(b);
+    });
+    $("tabs").replaceChildren(f);
+  }
+
+  function buildDecks(){
+    var host = $("decks"), ds = TABS[state.tab].decks;
+    if (ds.length < 2){ host.replaceChildren(); host.style.display = "none"; return; }
+    host.style.display = "flex";
+    var f = document.createDocumentFragment();
+    ds.forEach(function(d,i){
+      var b = document.createElement("button");
+      b.className = "deck"; b.type = "button";
+      b.setAttribute("aria-pressed", i===state.deck ? "true" : "false");
+      b.textContent = d.short + " (" + d.items.length + ")";
+      b.addEventListener("click", function(){
+        pos[pkey()] = state.idx; state.deck = i;
+        state.idx = pos[pkey()] || 0; render(); });
+      f.appendChild(b);
+    });
+    host.replaceChildren(f);
+  }
+
+  function field(label, value, href){
+    var d = document.createElement("div");
+    var dt = document.createElement("dt"); dt.textContent = label;
+    var dd = document.createElement("dd");
+    if (href){
+      var a = document.createElement("a");
+      a.href = href; a.target = "_blank"; a.rel = "noopener noreferrer";
+      a.textContent = value; dd.appendChild(a);
+    } else { dd.textContent = value; }
+    d.appendChild(dt); d.appendChild(dd);
+    return d;
+  }
+
+  function render(){
+    if (window.syncLinkField) setTimeout(window.syncLinkField, 0);
+    var d = deck(); if (d && state.idx >= d.items.length) state.idx = Math.max(0, d.items.length - 1);
+    var it = item(), n = d ? d.items.length : 0;
+    document.body.classList.toggle("is-quote", (it && it.kind ? it.kind : TABS[state.tab].id) === "quotes");
+    buildTabs(); buildDecks();
+
+    var bar = $("bar"); bar.replaceChildren();
+    var segs = Math.min(n, 60), per = n / segs || 1;
+    for (var s = 0; s < segs; s++){
+      var e = document.createElement("span");
+      var lo = Math.floor(s*per), hi = Math.max(Math.floor((s+1)*per), lo+1);
+      e.className = "seg" + (state.idx >= lo && state.idx < hi ? " now"
+                             : (state.idx >= hi ? " done" : ""));
+      var pk0 = pick(); if (pk0 && pk0.some(function(p){ return p >= lo && p < hi; })) e.className += " pick";
+      e.title = (hi - lo > 1 ? (lo+1) + "\u2013" + hi : String(lo+1)) + " of " + n;
+      bar.appendChild(e);
+    }
+    bar.setAttribute("aria-valuenow", String(n ? state.idx+1 : 0));
+    bar.setAttribute("aria-valuemax", String(n));
+    $("count").innerHTML = "<b>" + (n ? state.idx+1 : 0) + "</b> of " + n;
+    if (!it) return;
+
+    // ---------- stage (what the room sees) ----------
+    $("eyebrow").textContent = it.theme || d.label || d.short;
+    $("title").textContent = it.title;
+
+    var isQuote = (it.kind || TABS[state.tab].id) === "quotes";
+    var who = it.speaker || (isQuote ? "" : it.attributed) || "";
+    var bits = [];
+    if (who)      bits.push('<span class="who">' + esc(who) + "</span>");
+    if (it.event) bits.push(esc(it.event));
+    if (it.date)  bits.push(esc(it.date));
+    $("credit").innerHTML = bits.join('<span class="sep">&middot;</span>');
+    $("credit").style.display = bits.length ? "flex" : "none";
+
+    var link = FEAT.sourceLinks !== false && !!it.url;
+    var A = function(inner, cls){ return link ? '<a class="src' + (cls ? " " + cls : "") + '" href="' + esc(it.url)
+      + '" target="_blank" rel="noopener noreferrer" title="Open the source on satyamyogaprasad.net (new tab)">'
+      + inner + "</a>" : inner; };
+    var src = [];
+    if (it.book)   src.push(A("<b>" + esc(it.book) + "</b>"));
+    if (it.author && it.author !== it.book) src.push(esc(it.author));
+    if (it.year)   src.push(esc(it.year));
+    if (it.page)   src.push(A("p. " + esc(it.page)));
+    $("sourceLine").innerHTML = src.join(" &middot; ") + (link && src.length ? A("&#8599;", "ext") : "");
+    $("sourceLine").style.display = src.length ? "block" : "none";
+
+    $("body").innerHTML = toHTML(it.md);
+    $("attrib").textContent = it.attributed ? "— " + it.attributed : "";
+
+    // ---------- reference strip ----------
+    var g = $("grid"); g.replaceChildren();
+    g.appendChild(field("Attributed to", it.attributed || "not stated in the text"));
+    if (it.book)    g.appendChild(field("Book", it.book));
+    g.appendChild(field("Author", it.author || "not stated in the text"));
+    if (it.year)    g.appendChild(field("Year", it.year));
+    if (it.edition) g.appendChild(field("Edition", it.edition));
+    g.appendChild(field("Printed page", it.page || "not stated in the text"));
+    if (it.url) g.appendChild(field(it.exact ? "Open at this page" : "Open the book",
+                                    it.exact ? "satyamyogaprasad.net → p." + it.page
+                                             : "satyamyogaprasad.net", it.url));
+    g.appendChild(field("Length", it.words + " words"));
+    if (FEAT.showSourceFile !== false && it.source_file) g.appendChild(field("Source text", it.source_file));
+
+    $("why").innerHTML = it.why ? "<b>Why it lands</b>" + esc(it.why) : "";
+    $("why").style.display = it.why ? "block" : "none";
+    var cav = [];
+    if (it.note) cav.push(it.note);
+    if (it.url && !it.exact) cav.push("This link opens the book; the page anchor is unavailable for this title, so scroll to the printed page above.");
+    $("caveat").textContent = cav.join(" · ");
+    $("caveat").style.display = cav.length ? "block" : "none";
+
+    var pkb = pick();
+    $("prev").disabled = pkb ? pkb.indexOf(state.idx) <= 0 : state.idx <= 0;
+    $("next").disabled = pkb ? pkb.indexOf(state.idx) >= pkb.length-1 : state.idx >= n-1;
+    updateFitbar(n);
+    if (document.body.classList.contains("fit-on")) $("card").scrollTop = 0;   // a new reading starts at its top
+    fbRender();
+    if (document.body.classList.contains("edit-on") && $("edDeck").textContent.indexOf(d ? d.short : "\u0000") !== 0) edBuildList();
+    if (document.body.classList.contains("fit-on")) requestAnimationFrame(fit);
+  }
+
+  function move(step){
+    var n = deck() ? deck().items.length : 0, nx = state.idx + step, pk = pick();
+    if (pk){ var k = pk.indexOf(state.idx) + step; if (k < 0 || k >= pk.length) return; nx = pk[k]; }
+    if (nx < 0 || nx >= n) return;
+    state.idx = nx; render();
+    if (state.auto) startTimer();
+    if (!document.body.classList.contains("fit-on"))
+      $("card").scrollIntoView({block:"nearest", behavior:"smooth"});
+  }
+  $("prev").addEventListener("click", function(){ move(-1); });
+  $("next").addEventListener("click", function(){ move(1); });
+  document.addEventListener("keydown", function(e){
+    if (e.target.closest && e.target.closest("input,textarea")) return;   // #300: a space typed in the feedback box must not advance the card
+    if (e.target.closest && e.target.closest("button") && (e.key===" " || e.key==="Enter")) return;
+    if (e.key==="ArrowRight" || e.key===" "){ e.preventDefault(); move(1); }
+    else if (e.key==="ArrowLeft"){ e.preventDefault(); move(-1); }
+  });
+
+
+  // ---------- progress bar: click or drag to jump to any reading (KA, 2026-09-09) ----------
+  var barEl = $("bar"), scrubbing = false;
+  function goTo(i){
+    var n = deck() ? deck().items.length : 0;
+    if (!n) return;
+    i = nearPick(Math.max(0, Math.min(n-1, i)));
+    if (i === state.idx) return;
+    state.idx = i; render();
+    if (state.auto) startTimer();
+  }
+  function idxAt(e){
+    var r = barEl.getBoundingClientRect(), n = deck() ? deck().items.length : 0;
+    if (!n || !r.width) return 0;
+    return Math.floor(((e.clientX - r.left) / r.width) * n);
+  }
+  if (FEAT.progressScrub !== false){
+    barEl.classList.add("scrub");
+    barEl.setAttribute("role", "slider"); barEl.setAttribute("aria-label", "Reading position");
+    barEl.setAttribute("aria-valuemin", "1"); barEl.tabIndex = 0; barEl.removeAttribute("aria-hidden");
+    barEl.addEventListener("pointerdown", function(e){
+      if (e.button) return;
+      scrubbing = true; barEl.setPointerCapture(e.pointerId); goTo(idxAt(e)); e.preventDefault(); });
+    barEl.addEventListener("pointermove", function(e){ if (scrubbing) goTo(idxAt(e)); });
+    ["pointerup","pointercancel","lostpointercapture"].forEach(function(ev){
+      barEl.addEventListener(ev, function(){ scrubbing = false; }); });
+  }
+  document.addEventListener("keydown", function(e){
+    if (e.target.closest && e.target.closest("input,textarea")) return;
+    if (e.key === "Home"){ e.preventDefault(); goTo(0); }
+    else if (e.key === "End"){ e.preventDefault(); goTo(1e9); }
+  });
+
+  function copyText(s, done){
+    var ok = function(){ done(true); }, ko = function(){
+      try { var ta = document.createElement("textarea"); ta.value = s; ta.style.position = "fixed"; ta.style.opacity = "0";
+        document.body.appendChild(ta); ta.select(); var r = document.execCommand("copy"); document.body.removeChild(ta); done(!!r); }
+      catch (err) { done(false); } };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(s).then(ok, ko); else ko();
+  }
+  // ---------- edit mode (#280): local order / hidden / edits / selection, applied to DATA before render ----------
+  var ED = {order:{}, hidden:{}, edits:{}, selected:[]};
+  try { var ed0 = JSON.parse(localStorage.getItem(SK + "edit") || "null"); if (ed0 && ed0.order) ED = ed0; } catch (err) {}
+  function edSave(){ try { localStorage.setItem(SK + "edit", JSON.stringify(ED)); } catch (err) {} }
+  var ORIG = {};   // deck id -> original items (unfiltered), so hidden/reorder/edits are reversible in-page
+  DATA.decks.forEach(function(d){ ORIG[d.id] = d.items.map(function(it){ return Object.assign({}, it); }); });
+  var EDIT_FIELDS = ["title","speaker","theme","why","note","md"];
+  function edApply(){
+    DATA.decks.forEach(function(d){
+      var base = ORIG[d.id].map(function(it){ return Object.assign({}, it); });
+      var byId = {}; base.forEach(function(it){ byId[it.id] = it; });
+      var order = ED.order[d.id];
+      var items = order ? order.map(function(id){ return byId[id]; }).filter(Boolean)
+                            .concat(base.filter(function(it){ return order.indexOf(it.id) < 0; })) : base;
+      items.forEach(function(it){
+        var e = ED.edits[it.id]; if (e) EDIT_FIELDS.forEach(function(k){ if (e[k] !== undefined) it[k] = e[k]; });
+        if (ED.hidden[it.id]) it.hidden = true;
+      });
+      d.items = items.filter(function(it){ return !it.hidden; });
+    });
+    TABS.forEach(function(t){ t.count = t.decks.reduce(function(n,d){ return n + d.items.length; }, 0); });
+  }
+  edApply();
+  function edSelInfo(){ $("edSelN").textContent = ED.selected.length ? "(" + ED.selected.length + ")" : ""; }
+  function edHeader(kind){
+    return {_this_is: "Yajna Reader " + kind + " — " + (CONFIG.repo || "repo?") + " " + (CONFIG.project || "project?")
+      + " — feed it to build.py in that repo; any other repo should refuse it",
+      repo: CONFIG.repo || "", project: CONFIG.project || "", made: new Date().toISOString()};
+  }
+  function edBuildList(){
+    var d = deck(); if (!d) return;
+    $("edDeck").textContent = d.short + " (" + ORIG[d.id].length + " cards)";
+    var order = ED.order[d.id] || ORIG[d.id].map(function(it){ return it.id; });
+    var byId = {}; ORIG[d.id].forEach(function(it){ byId[it.id] = it; });
+    var ol = $("edList"); ol.replaceChildren();
+    order.forEach(function(id){
+      var it = byId[id]; if (!it) return;
+      var li = document.createElement("li"); li.className = "ed-row" + (ED.hidden[id] ? " hidden-card" : ""); li.draggable = true; li.dataset.id = id;
+      var e = ED.edits[id] || {};
+      li.innerHTML = '<span class="n"></span>'
+        + '<input type="checkbox" aria-label="select"' + (ED.selected.indexOf(id) > -1 ? " checked" : "") + '>'
+        + '<span class="t">' + esc(e.title || it.title) + '<small>' + esc(it.book || "") + (it.page ? " p. " + esc(it.page) : "") + "</small>"
+        + (Object.keys(e).length ? '<span class="edited">edited</span>' : "") + "</span>"
+        + '<span class="ops"><button type="button" title="Show this card" data-op="go">&#8599;</button>'
+        + '<button type="button" title="' + (ED.hidden[id] ? "Unhide" : "Hide from the reading view") + '" data-op="hide">' + (ED.hidden[id] ? "&#128065;&#65039;" : "&#128065;") + "</button>"
+        + '<button type="button" title="Edit fields" data-op="edit">&#9998;</button></span>';
+      ol.appendChild(li);
+    });
+    edSelInfo();
+  }
+  function edMove(fromId, toId){
+    var d = deck(); var order = ED.order[d.id] || ORIG[d.id].map(function(it){ return it.id; });
+    var a = order.indexOf(fromId), b = order.indexOf(toId); if (a < 0 || b < 0 || a === b) return;
+    order.splice(a, 1); order.splice(b, 0, fromId); ED.order[d.id] = order; edSave(); edApply(); edBuildList(); render();
+  }
+  function edForm(li, id){
+    var old = li.querySelector(".ed-form"); if (old){ old.remove(); return; }
+    var d = deck(), it = ORIG[d.id].filter(function(x){ return x.id === id; })[0], e = ED.edits[id] || {};
+    var f = document.createElement("div"); f.className = "ed-form"; f.draggable = false;
+    var fields = [["title","Title"],["speaker","Credit line"],["theme","Theme / eyebrow"],["why","Why it lands"],["note","Note"]];
+    f.innerHTML = fields.map(function(p){ return '<label' + (p[0] === "why" || p[0] === "note" ? ' class="full"' : "") + '>' + p[1]
+        + '<input data-k="' + p[0] + '" value="' + esc(e[p[0]] !== undefined ? e[p[0]] : (it[p[0]] || "")) + '"></label>'; }).join("")
+      + '<label class="full">Text (verbatim — an edit must pass validate.py before it is built)<textarea data-k="md">' + esc(e.md !== undefined ? e.md : it.md) + "</textarea></label>";
+    f.addEventListener("input", function(ev){
+      var k = ev.target.dataset.k; if (!k) return;
+      var cur = ED.edits[id] || {}; if (ev.target.value === (it[k] || "")) delete cur[k]; else cur[k] = ev.target.value;
+      if (Object.keys(cur).length) ED.edits[id] = cur; else delete ED.edits[id];
+      edSave(); edApply(); render();
+    });
+    f.addEventListener("mousedown", function(ev){ ev.stopPropagation(); });
+    li.appendChild(f);
+  }
+  $("edList").addEventListener("click", function(ev){
+    var li = ev.target.closest(".ed-row"); if (!li) return; var id = li.dataset.id;
+    if (ev.target.type === "checkbox"){
+      var i = ED.selected.indexOf(id); if (ev.target.checked && i < 0) ED.selected.push(id); if (!ev.target.checked && i > -1) ED.selected.splice(i, 1);
+      edSave(); edSelInfo(); return;
+    }
+    var op = ev.target.dataset.op; if (!op) return;
+    if (op === "hide"){ if (ED.hidden[id]) delete ED.hidden[id]; else ED.hidden[id] = true; edSave(); edApply(); edBuildList(); render(); }
+    else if (op === "edit"){ edForm(li, id); }
+    else if (op === "go"){ var d = deck(); var k = d.items.map(function(x){ return x.id; }).indexOf(id); if (k > -1){ state.idx = k; render(); $("card").scrollIntoView({block:"start", behavior:"smooth"}); } }
+  });
+  var dragId = null;
+  $("edList").addEventListener("dragstart", function(ev){ var li = ev.target.closest(".ed-row"); if (!li) return; dragId = li.dataset.id; li.classList.add("dragging"); ev.dataTransfer.effectAllowed = "move"; });
+  $("edList").addEventListener("dragover", function(ev){ ev.preventDefault(); var li = ev.target.closest(".ed-row"); document.querySelectorAll(".ed-row.over").forEach(function(x){ x.classList.remove("over"); }); if (li) li.classList.add("over"); });
+  $("edList").addEventListener("drop", function(ev){ ev.preventDefault(); var li = ev.target.closest(".ed-row"); if (li && dragId) edMove(dragId, li.dataset.id); dragId = null; });
+  $("edList").addEventListener("dragend", function(){ document.querySelectorAll(".ed-row.over,.ed-row.dragging").forEach(function(x){ x.classList.remove("over"); x.classList.remove("dragging"); }); });
+  $("edSelAll").addEventListener("click", function(){ var d = deck(); d.items.forEach(function(it){ if (ED.selected.indexOf(it.id) < 0) ED.selected.push(it.id); }); edSave(); edBuildList(); });
+  $("edSelNone").addEventListener("click", function(){ var d = deck(); var ids = ORIG[d.id].map(function(it){ return it.id; }); ED.selected = ED.selected.filter(function(id){ return ids.indexOf(id) < 0; }); edSave(); edBuildList(); });
+  $("edCopySel").addEventListener("click", function(){
+    var o = edHeader("selection"); o.selection = ED.selected.slice(); o.hidden = Object.keys(ED.hidden); o.edits = ED.edits;
+    o.deck = {title: CONFIG.title || "", occasion: CONFIG.occasion || "", audio: {src: "", loop: true, volume: 0.6}};
+    copyText(JSON.stringify(o, null, 2), function(ok){ $("edStatus").textContent = ok ? "selection copied (" + o.selection.length + " cards) — python build.py --select <file> --out deck.html" : "copy blocked"; });
+  });
+  $("edCopyPatch").addEventListener("click", function(){
+    var o = edHeader("patch"); o.order = ED.order; o.hidden = Object.keys(ED.hidden); o.edits = ED.edits;
+    copyText(JSON.stringify(o, null, 2), function(ok){ $("edStatus").textContent = ok ? "patch copied — python build.py --apply <file>" : "copy blocked"; });
+  });
+  $("edReset").addEventListener("click", function(){
+    if (!window.confirm("Forget every local change in this browser (order, hidden, edits, selection)?")) return;
+    ED = {order:{}, hidden:{}, edits:{}, selected:[]}; edSave(); edApply(); state.idx = 0; edBuildList(); render(); $("edStatus").textContent = "reset";
+  });
+  function setEdit(on){
+    document.body.classList.toggle("edit-on", on); $("editBtn").setAttribute("aria-pressed", on ? "true" : "false");
+    $("editor").hidden = !on; if (on){ setLive(false); edBuildList(); }
+  }
+  $("editBtn").addEventListener("click", function(){ setEdit(!document.body.classList.contains("edit-on")); });
+  document.addEventListener("keydown", function(e){
+    if (e.target.closest && e.target.closest("input,textarea")) return;
+    if (e.key === "e" || e.key === "E") setEdit(!document.body.classList.contains("edit-on"));
+  });
+
+  // ---------- feedback JSON per card (#285) + flag (#283) ----------
+  var FB = {};
+  try { FB = JSON.parse(localStorage.getItem(SK + "fb") || "{}") || {}; } catch (err) { FB = {}; }
+  function fbSave(){ try { localStorage.setItem(SK + "fb", JSON.stringify(FB)); } catch (err) {} }
+  function cid(){ var d = deck(), it = item(); return d && it ? (it.id || d.id + ":" + state.idx) : ""; }
+  function hhmm(ts){ var x = new Date(ts); return ("0" + x.getHours()).slice(-2) + ":" + ("0" + x.getMinutes()).slice(-2); }
+  function fbHeader(d, it, tabId){
+    return {
+      _this_is: "Yajna Reader feedback — " + (CONFIG.repo || "repo?") + " " + (CONFIG.project || "project?")
+        + " — paste it back to Claude in that repo; any other repo should refuse it",
+      repo: CONFIG.repo || "", project: CONFIG.project || "", occasion: CONFIG.occasion || "",
+      tab: tabId, deck: d.id, card: it.id || "", title: it.title, book: it.book || "", page: it.page || "",
+      url: it.url || ""
+    };
+  }
+  function fbEntry(d, it, tabId, text, at){
+    var o = fbHeader(d, it, tabId); o.feedback = text; o.at = new Date(at).toISOString(); return o;
+  }
+  function fbPendingList(){
+    var out = [];
+    TABS.forEach(function(t){ t.decks.forEach(function(d){ d.items.forEach(function(it, i){
+      var k = it.id || d.id + ":" + i, e = FB[k];
+      if (e && e.text && (!e.copiedAt || e.updatedAt > e.copiedAt)) out.push({d:d, it:it, tab:t.id, e:e, k:k});
+    }); }); });
+    return out;
+  }
+  function fbRender(){
+    var k = cid(), e = FB[k] || {}, ta = $("fbText"), st = $("fbStatus");
+    if (!k){ $("fb").style.display = "none"; return; }
+    $("fb").style.display = "block";
+    var pending = e.text && (!e.copiedAt || e.updatedAt > e.copiedAt);
+    ta.value = pending ? e.text : "";
+    st.textContent = !pending && e.copiedAt ? "copied " + hhmm(e.copiedAt) + " — type again to send an update" : "";
+    var n = fbPendingList().length; $("fbPending").textContent = n ? String(n) : "";
+  }
+  $("fbText").addEventListener("input", function(){
+    var k = cid(); if (!k) return;
+    var e = FB[k] || {}; e.text = $("fbText").value; e.updatedAt = Date.now(); FB[k] = e; fbSave();
+    var n = fbPendingList().length; $("fbPending").textContent = n ? String(n) : "";
+  });
+  $("fbCopy").addEventListener("click", function(){
+    var k = cid(), e = FB[k]; if (!k || !e || !e.text.trim()){ $("fbStatus").textContent = "nothing to copy"; return; }
+    var s = JSON.stringify(fbEntry(deck(), item(), TABS[state.tab].id, e.text, e.updatedAt), null, 2);
+    copyText(s, function(ok){
+      if (ok){ e.copiedAt = Date.now(); fbSave(); fbRender(); $("fbStatus").textContent = "copied " + hhmm(e.copiedAt) + " — paste it to Claude"; }
+      else $("fbStatus").textContent = "copy blocked by the browser — select the text and copy by hand";
+    });
+  });
+  $("fbCopyAll").addEventListener("click", function(){
+    var list = fbPendingList(); if (!list.length){ $("fbStatus").textContent = "nothing pending"; return; }
+    var arr = list.map(function(x){ return fbEntry(x.d, x.it, x.tab, x.e.text, x.e.updatedAt); });
+    copyText(JSON.stringify(arr, null, 2), function(ok){
+      if (ok){ var now = Date.now(); list.forEach(function(x){ x.e.copiedAt = now; }); fbSave(); fbRender();
+        $("fbStatus").textContent = "copied " + list.length + " pending item" + (list.length > 1 ? "s" : "") + " " + hhmm(now); }
+      else $("fbStatus").textContent = "copy blocked by the browser";
+    });
+  });
+  var flagTimer = null;
+  function flagSay(msg){
+    var el = $("flagMsg"); el.textContent = msg; el.classList.add("show");
+    if (flagTimer) clearTimeout(flagTimer);
+    flagTimer = setTimeout(function(){ el.classList.remove("show"); }, 4000);
+  }
+  $("flagBtn").addEventListener("click", function(){
+    var d = deck(), it = item(); if (!it) return;
+    var h = fbHeader(d, it, TABS[state.tab].id);
+    var line = "[Yajna Reader flag] " + h.tab + " / " + h.deck + " / " + h.card + " | " + h.title + " | " + h.book
+      + (h.page ? " p. " + h.page : "") + " | " + h.url;
+    var doc = (CONFIG.feedback || {}).url || (CONFIG.feedback || {}).docUrl || "";
+    // A GitHub issue FORM prefills from query parameters named after each field id, so the card
+    // arrives in the issue already filled in — the clipboard is only the fallback.
+    var url = doc;
+    if (doc && doc.indexOf("template=") > -1) {
+      url = doc + "&card=" + encodeURIComponent(line)
+                + "&title=" + encodeURIComponent("[reader] " + h.deck + " — " + h.title);
+    }
+    copyText(line, function(ok){
+      flagSay(doc ? "the form opens with this card filled in"
+                  : (ok ? "reference copied" : "copy blocked by the browser"));
+    });
+    if (url) window.open(url, "_blank", "noopener");
+  });
+
+  $("infoBtn").addEventListener("click", function(){
+    var c = $("siteCredit"); c.hidden = !c.hidden; $("infoBtn").setAttribute("aria-expanded", c.hidden ? "false" : "true");
+    $("creditRepo").textContent = CONFIG.version || "";
+    var fb = CONFIG.feedback || {}, note = $("feedbackNote");
+    $("feedbackText").textContent = fb.text || " is welcome.";
+    if (fb.url){
+      $("feedbackLink").href = fb.url; $("feedbackArrow").href = fb.url;
+      $("feedbackLink").hidden = false; $("feedbackArrow").hidden = false;
+    } else { $("feedbackLink").hidden = true; $("feedbackArrow").hidden = true; }
+    note.hidden = !fb.url;
+    var bd = CONFIG.build || {}, stamp = $("buildStamp");
+    if (bd.when || bd.commit){
+      $("buildWhen").textContent = bd.when || "";
+      $("buildCommit").textContent = bd.commit || "";
+      stamp.hidden = c.hidden;
+    } else stamp.hidden = true;
+  });
+
+  var liveBtn = $("live");
+  function setLive(on){
+    document.body.classList.toggle("live-on", on);
+    liveBtn.setAttribute("aria-pressed", on ? "true" : "false");
+    try { localStorage.setItem(SK + "live", on ? "1" : "0"); } catch (err) {}
+  }
+  liveBtn.addEventListener("click", function(){
+    setLive(!document.body.classList.contains("live-on"));
+  });
+  document.addEventListener("keydown", function(e){
+    if (e.target.closest && e.target.closest("input,textarea")) return;
+    if (e.key === "l" || e.key === "L"){
+      setLive(!document.body.classList.contains("live-on"));
+    } else if (e.key === "a" || e.key === "A"){
+      setAuto(!state.auto);
+    } else if (e.key === "Escape"){
+      if (state.auto) setAuto(false);
+    } else if (e.key === "f" || e.key === "F"){
+      var de = document.documentElement;
+      if (document.fullscreenElement){ if (document.exitFullscreen) document.exitFullscreen(); }
+      else if (de.requestFullscreen){ de.requestFullscreen().catch(function(){}); }
+    }
+  });
+
+  // ---------- auto-advance + fit-to-window (waitroom view) ----------
+  state.auto = false;
+  var timer = null, autoBtn = $("auto"), secsIn = $("autoSecs");
+  var MIN_S = (AUTO.minSeconds === undefined ? 0 : AUTO.minSeconds), MAX_S = AUTO.maxSeconds || 600, DEF_S = (AUTO.defaultSeconds === undefined ? 15 : AUTO.defaultSeconds);
+  secsIn.min = MIN_S; secsIn.max = MAX_S; secsIn.value = DEF_S;
+  try { var s0 = parseInt(localStorage.getItem(SK + "auto-secs"), 10); if (s0 >= MIN_S) secsIn.value = s0; } catch (err) {}
+  function secs(){ var v = parseInt(secsIn.value, 10); if (!(v >= MIN_S)) v = DEF_S; if (v > MAX_S) v = MAX_S; return v; }
+  function autoTick(){
+    var n = deck() ? deck().items.length : 0; if (!n) return;
+    var pk = pick();
+    if (pk){ var k = (pk.indexOf(state.idx) + 1) % pk.length; if (k === 0 && AUTO.loop === false){ setAuto(false); return; } state.idx = pk[k]; render(); return; }
+    if (state.idx + 1 >= n && AUTO.loop === false){ setAuto(false); return; }
+    state.idx = (state.idx + 1) % n;            // loops by default: a waitroom never ends on "Next disabled"
+    render();
+  }
+  function startTimer(){ stopTimer(); if (secs() > 0) timer = setInterval(autoTick, secs() * 1000); }
+  function stopTimer(){ if (timer){ clearInterval(timer); timer = null; } }
+  var bgm = $("bgm"), AUD = CONFIG.audio || {};
+  if (AUD.src){ bgm.src = AUD.src; bgm.loop = AUD.loop !== false; bgm.volume = (AUD.volume === undefined ? 0.6 : AUD.volume); }
+  function setAuto(on){
+    state.auto = !!on;
+    if (AUD.src){ if (state.auto) bgm.play().catch(function(){}); else bgm.pause(); }
+    document.body.classList.toggle("fit-on", state.auto);
+    autoBtn.setAttribute("aria-pressed", state.auto ? "true" : "false");
+    $("fitbar").hidden = !state.auto;
+    if (state.auto){ setLive(true); startTimer(); render(); hudWake(); }
+    else { stopTimer(); document.documentElement.style.removeProperty("--fit"); render(); }
+  }
+  autoBtn.addEventListener("click", function(){ setAuto(!state.auto); });
+  secsIn.addEventListener("change", function(){
+    secsIn.value = secs();
+    try { localStorage.setItem(SK + "auto-secs", String(secs())); } catch (err) {}
+    if (state.auto) startTimer();
+  });
+  // Fit: the largest type size at which the whole reading sits inside the window.
+  var QMIN = (CONFIG.fit || {}).quoteMinPx || 24, QMAX = (CONFIG.fit || {}).quoteMaxPx || 52;
+  function fit(){
+    if (!document.body.classList.contains("fit-on")) return;
+    var root = document.documentElement;
+    if (!document.body.classList.contains("is-quote")){ root.style.removeProperty("--fit"); return; }
+    var art = $("card"), st = art.querySelector(".stage");
+    var H = art.clientHeight, W = art.clientWidth, lo = QMIN, hi = QMAX;
+    for (var k = 0; k < 14; k++){
+      var mid = (lo + hi) / 2;
+      root.style.setProperty("--fit", mid + "px");
+      if (st.scrollHeight <= H && st.scrollWidth <= W) lo = mid; else hi = mid;
+    }
+    root.style.setProperty("--fit", Math.floor(lo) + "px");
+  }
+  function updateFitbar(n){
+    if (!state.auto) return;
+    var pk = pick(); var pos = pk ? (pk.indexOf(state.idx) + 1) + " of " + pk.length + " picked" : (n ? state.idx + 1 : 0) + " / " + n;
+    $("fitbar").innerHTML = pos + " &middot; " + (secs() > 0 ? secs() + " s" : "manual")
+      + " &middot; <kbd>Esc</kbd> leaves &middot; <kbd>F</kbd> full screen";
+  }
+  // HUD (bottom-right status) fades after idle seconds, returns on any mouse or key activity (#286)
+  var hudTimer = null, HUD_S = (AUTO.hudFadeSeconds === undefined ? 8 : AUTO.hudFadeSeconds);
+  function hudWake(){
+    if (!state.auto || !HUD_S) return;
+    $("fitbar").classList.remove("faded");
+    if (hudTimer) clearTimeout(hudTimer);
+    hudTimer = setTimeout(function(){ $("fitbar").classList.add("faded"); }, HUD_S * 1000);
+  }
+  ["mousemove","keydown","pointerdown","touchstart"].forEach(function(ev){
+    document.addEventListener(ev, hudWake, {passive:true}); });
+  window.addEventListener("resize", function(){ if (state.auto) requestAnimationFrame(fit); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ if (state.auto) fit(); });
+  document.addEventListener("visibilitychange", function(){
+    if (!state.auto) return;
+    if (document.hidden) stopTimer(); else startTimer();   // no silent catch-up jumps after a tab switch
+  });
+  var saved = null;
+  try { saved = localStorage.getItem(SK + "live"); } catch (err) {}
+  setLive(saved === null ? !!FEAT.liveDefault : saved === "1");
+
+  applyQuery();
+  $("occasion").textContent = CONFIG.occasion || "";
+  if (CONFIG.title) document.querySelector("h1").textContent = CONFIG.title;
+  var total = DATA.decks.reduce(function(n,d){ return n + d.items.length; }, 0);
+  $("dates").textContent = (CONFIG.dates || "") + " · " + total + " verbatim readings from the corpus";
+  $("foot").innerHTML =
+    "Every passage, story and quote here is a <b>verbatim</b> extract, checked as a genuine "
+    + "contiguous substring of its source before inclusion; anything that failed was dropped rather "
+    + "than repaired. Where a source does not state a speaker, edition or page, this reader says so "
+    + "instead of guessing. Page links open the book on satyamyogaprasad.net at the PDF page matching "
+    + "the printed page, using a per-book offset read from the book's own printed folios — a few "
+    + "titles have no reliable offset and link to the book instead, and say so.";
+  render();
+  function applyModes(){
+    if (Q.get("live") === "1") setLive(true); else if (Q.get("live") === "0") setLive(false);
+    if (Q.get("auto") !== null){ var qa = parseInt(Q.get("auto"), 10); if (qa >= 0){ secsIn.value = qa; } setAuto(true); }
+    else if (Q.get("fit") === "1"){ secsIn.value = 0; setAuto(true); }
+  }
+  applyModes();
+
+  // ---------- theme (#299): follows the device unless chosen here; ◐ device · ○ light · ● dark ----------
+  var root = document.documentElement, HOST_THEME = root.getAttribute("data-theme");
+  var THEMES = ["system", "light", "dark"], themeBtn = $("themeBtn");
+  function themeGet(){ try { var v = localStorage.getItem(SK + "theme"); return THEMES.indexOf(v) > 0 ? v : "system"; } catch (err) { return "system"; } }
+  function themeApply(t){
+    if (t === "system"){ if (HOST_THEME) root.setAttribute("data-theme", HOST_THEME); else root.removeAttribute("data-theme"); }
+    else root.setAttribute("data-theme", t);
+    var next = THEMES[(THEMES.indexOf(t) + 1) % THEMES.length];
+    themeBtn.textContent = t === "system" ? "\u25D0" : t === "light" ? "\u25CB" : "\u25CF";
+    themeBtn.title = "Theme: " + (t === "system" ? "follows your device" : t) + " \u2014 click for " + (next === "system" ? "your device setting" : next);
+    themeBtn.setAttribute("aria-label", themeBtn.title);
+  }
+  themeBtn.addEventListener("click", function(){
+    var t = THEMES[(THEMES.indexOf(themeGet()) + 1) % THEMES.length];
+    try { localStorage.setItem(SK + "theme", t); } catch (err) {}
+    themeApply(t);
+  });
+  themeApply(themeGet());
+
+  // ---------- parameters panel (#297): test and share the URL parameters from inside the reader ----------
+  function paramString(){
+    var out = ["tab=" + TABS[state.tab].id], d = deck(), pk = pick();
+    if (d) out.push("deck=" + d.id);
+    if (pk) out.push("cards=" + pk.map(function(i){ return i + 1; }).join(","));
+    out.push("card=" + (state.idx + 1));
+    if (state.auto) out.push("auto=" + secs());
+    if (document.body.classList.contains("live-on")) out.push("live=1");
+    return out.join("&");
+  }
+  function applyParamString(str){   // same effect as loading the page with ?str
+    Q = new URLSearchParams((str || "").trim().replace(/^[?#]/, ""));
+    state.tab = 0; state.deck = 0; state.idx = 0; PICKS = {};
+    applyQuery();
+    if (state.auto && Q.get("auto") === null && Q.get("fit") !== "1") setAuto(false);
+    render();
+    applyModes();
+  }
+  var linkBar = $("linkbar"), linkIn = $("linkIn"), linkMsg = $("linkMsg");
+  function linkOpen(on){
+    linkBar.hidden = !on; $("linkBtn").setAttribute("aria-expanded", on ? "true" : "false"); linkMsg.textContent = "";
+    if (on){ linkIn.value = paramString(); linkIn.focus(); linkIn.select(); }
+  }
+  window.syncLinkField = function(){ if (!linkBar.hidden && document.activeElement !== linkIn) linkIn.value = paramString(); };
+  $("linkBtn").addEventListener("click", function(){ linkOpen(linkBar.hidden); });
+  $("linkApply").addEventListener("click", function(){ applyParamString(linkIn.value); linkIn.value = paramString(); linkMsg.textContent = "applied"; });
+  $("linkCopy").addEventListener("click", function(){
+    var framed = window.top !== window, text = framed ? linkIn.value : location.href.split(/[?#]/)[0] + "?" + linkIn.value;
+    copyText(text, function(ok){ linkMsg.textContent = ok ? (framed ? "parameters copied \u2014 paste after the reader address\u2019s ? or #" : "link copied") : "copy failed"; });
+  });
+  linkIn.addEventListener("keydown", function(e){   // the page shortcuts (space, arrows, A, L, E, F) must not fire while typing
+    e.stopPropagation();
+    if (e.key === "Enter"){ e.preventDefault(); $("linkApply").click(); }
+    else if (e.key === "Escape"){ linkOpen(false); }
+  });
+})();
+</script>
+
+</body></html>
