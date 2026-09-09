@@ -42,13 +42,27 @@ build you are looking at.
 | `config.json` | occasion, tabs, theme, typography, auto-advance, feedback link |
 | `template.html` | the whole page -- CSS, markup and JS, with three build placeholders |
 | `build.py` | decks + config + template -> `index.html` |
-| `validate.py` | checks a card's text against its source before it may ship |
-| `SPEC.md` | what the page does and why, plus the change log per round |
-| `PROTOCOL.md` | how it is run in the room |
-| `CURATION.md` | how a passage is chosen and verified |
 | `tests/` | the guards -- each test names the failure it catches |
 
-## Feedback
+## How it got here
+
+Every card is a verbatim excerpt, checked against the source text before it ships. That
+checking, and the curation that chooses a passage in the first place, happen in a private
+working repo that holds the corpus; they are not part of this one. What this repo has is the
+reader and everything needed to rebuild it.
+
+## What changed
+
+| round | what changed on the page |
+|---|---|
+| 1 | one reading per screen; scrubbable progress bar; Live; Auto + fit; deep links |
+| 2 | hostable single deck with audio; PPTX export |
+| 3 | title + page linked with the arrow last; fit scales only reading + citation; stable card ids |
+| 4 | one 34 em measure in every mode; quote bounds 24-52 px; URL parameters |
+| 5 | official swami order on every tab; theme toggle; no internal source path anywhere |
+| 6 | slideshow opens at 15 s; feedback link to a prefilled issue form; build stamp; flag on the card |
+
+## Feedback## Feedback
 
 Something wrong on a card? Click the flag at its top right: the issue form opens with the
 card already filled in. Or open an issue directly.

@@ -2,7 +2,7 @@
 
 Each test names the failure it catches:
   * a build that leaves a placeholder behind ships a page with no content / no config;
-  * a card whose text begins with a `kb/corpus/...` path or a "Narrator / occasion" bullet
+  * a card whose text begins with a corpus path or a "Narrator / occasion" bullet
     puts metadata on the readable card (KA, 2026-09-09 — the file path and the satsang-frame
     remark were both read out loud);
   * a speaker line carrying "satsang frame" is the internal meta-reference KA asked to be moved
@@ -35,6 +35,19 @@ DECKS = json.loads((READER / "decks.json").read_text("utf-8"))
 CARDS = [(d, it) for d in DECKS["decks"] for it in d["items"]]
 
 
+
+def _corpus_prefix() -> str:
+    """The first two segments of a card's source_file, e.g. "<root>/<sub>".
+
+    Read from the data so this published file never spells out the private tree (#302).
+    """
+    for d in DECKS["decks"]:
+        for it in d["items"]:
+            sf = it.get("source_file")
+            if sf:
+                return "/".join(sf.replace("\\", "/").split("/")[:2])
+    raise AssertionError("no card carries a source_file -- the guard cannot derive the prefix")
+
 def _load_build():
     spec = importlib.util.spec_from_file_location("yr_build", READER / "build.py")
     mod = importlib.util.module_from_spec(spec)
@@ -55,7 +68,7 @@ def test_build_fills_every_placeholder(tmp_path):
 @pytest.mark.parametrize("deck,card", CARDS, ids=[f"{d['id']}:{it['title'][:30]}" for d, it in CARDS])
 def test_card_text_carries_no_metadata(deck, card):
     head = card["md"].lstrip()[:120]
-    assert not head.startswith("`kb/corpus/"), "source path leaked onto the card"
+    assert not head.startswith("`" + _corpus_prefix()), "source path leaked onto the card"
     assert not re.match(r"-\s*\*\*Narrator", head, re.I), "narrator/occasion bullet leaked onto the card"
     assert "satsang frame" not in (card.get("speaker") or ""), "meta-reference on the credit line"
 
@@ -92,7 +105,11 @@ def test_swami_decks_follow_the_official_order_on_every_tab():
 def test_built_page_carries_no_internal_source_path(tmp_path):
     """#299 (KA, 2026-09-09): "Don't show kg txt file source path ... I don't want this accidentally
     publicly visible even in beta demos." Hiding the Reference row was not enough — the path sat in
-    the embedded payload of every card and in the flag / feedback report lines. The build strips it."""
+    the embedded payload of every card and in the flag / feedback report lines. The build strips it.
+
+    The prefix is derived from decks.json, never written here: this file is itself published
+    (#302), and a guard that must name the private tree in order to defend it leaks the very
+    thing it guards. Deriving it also survives a rename of the corpus root."""
     html = _load_build().build(tmp_path / "r.html").read_text("utf-8")
-    assert "kb/corpus" not in html
+    assert _corpus_prefix() not in html
     assert '"source_file"' not in html

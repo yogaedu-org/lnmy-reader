@@ -248,9 +248,13 @@ def test_build_stamp_names_the_commit_the_page_was_built_from(page, page_url):
 #      on the clipboard, so every report needed a paste that is easy to forget.
 def test_flag_opens_a_prefilled_issue_form(page, page_url):
     page.goto(page_url + f"#tab=quotes&deck={QUOTES}&card=3")
-    with page.expect_popup() as popup:
-        page.click("#flagBtn")
-    url = popup.value.url
+    # Capture what the page ASKS for. Following the popup would assert on where GitHub sends an
+    # anonymous visitor (login?return_to=...), which tests GitHub's auth, not this code -- and it
+    # differs between the private working repo and the public export this file also ships to.
+    page.evaluate("window.__opened = null; window.open = function(u){ window.__opened = u; return null; };")
+    page.click("#flagBtn")
+    url = page.evaluate("window.__opened")
+    assert url, "the flag must open the feedback form"
     assert "template=yajna-reader-feedback.yml" in url, url
     q = parse_qs(urlparse(url).query)
     assert q["card"][0].startswith("[Yajna Reader flag]"), q["card"][0]
@@ -261,3 +265,64 @@ def test_flag_opens_a_prefilled_issue_form(page, page_url):
     assert third["book"] in q["card"][0], q["card"][0]     # the source travels too
     assert q["title"][0].startswith("[reader] "), q["title"][0]
     assert third["title"] in q["title"][0], q["title"][0]
+
+
+# ---- #302 follow-up: KA's public-build review -----------------------------------------------
+def test_credit_names_who_it_was_made_for(page, page_url):
+    """KA: "Created with ... by YogicApproach -> ... by YogicApproach for yogaedu.org"."""
+    page.goto(page_url)
+    page.click("#infoBtn")
+    line = page.locator("#siteCredit").inner_text()
+    assert "by YogicApproach for yogaedu.org" in line, line
+    assert page.get_attribute("#siteCredit a[href*='yogaedu.org']", "href") == "https://yogaedu.org"
+
+
+def test_the_dates_line_says_excerpts_from_the_syp_corpus(page, page_url):
+    """KA: "342 verbatim readings from the corpus -> 342 verbatim excerpts from the SYP corpus".
+    "readings" collided with the Readings tab, and "the corpus" named nothing a visitor knows."""
+    page.goto(page_url)
+    line = page.locator("#dates").inner_text()
+    assert "verbatim excerpts from the SYP corpus" in line, line
+    assert "verbatim readings from the corpus" not in line, line
+
+
+def test_edit_matches_what_this_build_declares(page, page_url):
+    """Edit is on in our working build and off in the public export (#302), and this file ships
+    with BOTH -- so the guard asserts the page agrees with its own config rather than with one
+    repo's answer. A page that declares edit and does not offer it, or offers it while declaring
+    it off, is the failure either way."""
+    page.goto(page_url)
+    want = json.loads((READER / "config.json").read_text("utf-8")).get("features", {}).get("edit", True)
+    if want is False:
+        assert page.locator("#editBtn").count() == 0
+        assert page.locator("#editor").count() == 0
+        return
+    assert page.locator("#editBtn").is_visible()
+    page.click("#editBtn")
+    assert "edit-on" in page.evaluate("document.body.className")
+
+
+def test_edit_removed_entirely_when_the_feature_is_off(browser, tmp_path_factory):
+    """Off must mean gone, not hidden: a hidden Edit button still answers the E shortcut, and a
+    reader who trips it lands in a curation UI whose output nothing can validate."""
+    import json as _json
+    src = READER
+    out = tmp_path_factory.mktemp("noedit")
+    for name in ("decks.json", "template.html", "build.py"):
+        (out / name).write_bytes((src / name).read_bytes())
+    cfg = _json.loads((src / "config.json").read_text("utf-8"))
+    cfg.setdefault("features", {})["edit"] = False
+    (out / "config.json").write_text(_json.dumps(cfg, ensure_ascii=False), "utf-8")
+    import importlib.util as _iu
+    spec = _iu.spec_from_file_location("yr_noedit", out / "build.py")
+    mod = _iu.module_from_spec(spec); spec.loader.exec_module(mod)
+    built = mod.build(out / "r.html", here=out)
+
+    ctx = browser.new_context()
+    pg = ctx.new_page()
+    pg.goto(built.resolve().as_uri())
+    assert pg.locator("#editBtn").count() == 0, "the Edit button must be removed, not hidden"
+    assert pg.locator("#editor").count() == 0, "the editor panel must be removed, not hidden"
+    pg.keyboard.press("e")
+    assert "edit-on" not in pg.evaluate("document.body.className"), "E must not open a removed UI"
+    ctx.close()

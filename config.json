@@ -45,7 +45,8 @@
   "progressScrub": true,
   "sourceLinks": true,
   "showSourceFile": false,
-  "liveDefault": false
+  "liveDefault": false,
+  "edit": false
  },
  "theme": {
   "light": {
@@ -91,13 +92,13 @@
   "loop": true,
   "volume": 0.6
  },
- "version": "round-6b 2026-09-09",
+ "version": "round-6c 2026-09-09",
  "fit": {
   "quoteMinPx": 24,
   "quoteMaxPx": 52
  },
  "build": {
-  "commit": "feed5fed4",
-  "when": "2026-09-09 21:00 (NST)"
+  "commit": "c05b84fc4",
+  "when": "2026-09-09 21:48 (NST)"
  }
 }

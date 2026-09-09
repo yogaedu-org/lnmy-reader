@@ -310,7 +310,7 @@ __THEME_CSS__
       </span>
     </span>
   </div>
-  <p class="site-credit" id="siteCredit" hidden>Created with &#129504;&#10084;&#65039;&#128591; by <a href="https://yogicapproach.com" target="_blank" rel="noopener">YogicApproach</a>.
+  <p class="site-credit" id="siteCredit" hidden>Created with &#129504;&#10084;&#65039;&#128591; by <a href="https://yogicapproach.com" target="_blank" rel="noopener">YogicApproach</a> for <a href="https://yogaedu.org" target="_blank" rel="noopener">yogaedu.org</a>.
     <span class="muted">&middot; Yajna Reader &middot; <span id="creditRepo"></span></span>
     <span class="muted" id="feedbackNote" hidden>&middot;
       <a id="feedbackLink" class="feedback-link" href="#" target="_blank" rel="noopener">Feedback</a><span
@@ -751,10 +751,16 @@ __THEME_CSS__
     document.body.classList.toggle("edit-on", on); $("editBtn").setAttribute("aria-pressed", on ? "true" : "false");
     $("editor").hidden = !on; if (on){ setLive(false); edBuildList(); }
   }
-  $("editBtn").addEventListener("click", function(){ setEdit(!document.body.classList.contains("edit-on")); });
+  var EDIT_ON = ((CONFIG.features || {}).edit !== false);   // #302: off in the public build
+  if (!EDIT_ON){
+    $("editBtn").remove();
+    $("editor").remove();
+  } else {
+    $("editBtn").addEventListener("click", function(){ setEdit(!document.body.classList.contains("edit-on")); });
+  }
   document.addEventListener("keydown", function(e){
     if (e.target.closest && e.target.closest("input,textarea")) return;
-    if (e.key === "e" || e.key === "E") setEdit(!document.body.classList.contains("edit-on"));
+    if ((e.key === "e" || e.key === "E") && EDIT_ON) setEdit(!document.body.classList.contains("edit-on"));
   });
 
   // ---------- feedback JSON per card (#285) + flag (#283) ----------
@@ -961,7 +967,7 @@ __THEME_CSS__
   $("occasion").textContent = CONFIG.occasion || "";
   if (CONFIG.title) document.querySelector("h1").textContent = CONFIG.title;
   var total = DATA.decks.reduce(function(n,d){ return n + d.items.length; }, 0);
-  $("dates").textContent = (CONFIG.dates || "") + " · " + total + " verbatim readings from the corpus";
+  $("dates").textContent = (CONFIG.dates || "") + " · " + total + " verbatim excerpts from the SYP corpus";
   $("foot").innerHTML =
     "Every passage, story and quote here is a <b>verbatim</b> extract, checked as a genuine "
     + "contiguous substring of its source before inclusion; anything that failed was dropped rather "
