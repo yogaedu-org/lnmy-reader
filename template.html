@@ -229,7 +229,9 @@ body.live-on .stage{padding-block:clamp(34px,6vw,74px)}
 .autobox input{width:56px;font:inherit;font-size:.9rem;font-weight:500;letter-spacing:0;padding:4px 6px;
   border:1px solid var(--line);border-radius:4px;background:var(--surface);color:var(--ink);text-align:center}
 .autobox input:focus-visible{outline:2px solid var(--ember);outline-offset:1px}
-.topbar .right{display:inline-flex;align-items:center;gap:18px}
+/* margin-left:auto, not space-between alone: removing Edit (#302 public build) leaves one
+   child, and space-between parks a lone child on the LEFT. This holds either way. */
+.topbar .right{display:inline-flex;align-items:center;gap:18px;margin-left:auto}
 body.fit-on .topbar,body.fit-on header,body.fit-on nav.tabs,body.fit-on .decks,body.fit-on .progress,
 body.fit-on .controls,body.fit-on footer,body.fit-on .refs{display:none}
 body.fit-on{overflow:hidden}
@@ -310,7 +312,7 @@ __THEME_CSS__
       </span>
     </span>
   </div>
-  <p class="site-credit" id="siteCredit" hidden>Created with &#129504;&#10084;&#65039;&#128591; by <a href="https://yogicapproach.com" target="_blank" rel="noopener">YogicApproach</a> for <a href="https://yogaedu.org" target="_blank" rel="noopener">yogaedu.org</a>.
+  <p class="site-credit" id="siteCredit" hidden>Created with &#129504;&#10084;&#65039;&#128591; by <a href="https://yogicapproach.com" target="_blank" rel="noopener">YogicApproach</a> for <a href="https://github.com/yogaedu-org" target="_blank" rel="noopener">yogaedu.org</a>.
     <span class="muted">&middot; Yajna Reader &middot; <span id="creditRepo"></span></span>
     <span class="muted" id="feedbackNote" hidden>&middot;
       <a id="feedbackLink" class="feedback-link" href="#" target="_blank" rel="noopener">Feedback</a><span

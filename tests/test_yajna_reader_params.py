@@ -232,6 +232,10 @@ def test_info_line_ends_with_the_feedback_note_and_link(page, page_url):
     href = page.get_attribute("#feedbackLink", "href")
     assert "issues/new?template=yajna-reader-feedback.yml" in href, href
     assert page.get_attribute("#feedbackArrow", "href") == href
+    # KA, 2026-09-10: "feedback needs to go to the lnmy repo, not ajna's." Reader feedback belongs
+    # with the reader's own repo -- and the working repo is PRIVATE, so a link there 404s for
+    # everyone but the owner. Asserted in BOTH builds: this file ships to the public repo too.
+    assert href.startswith("https://github.com/yogaedu-org/lnmy-reader/"), href
 
 
 def test_build_stamp_names_the_commit_the_page_was_built_from(page, page_url):
@@ -274,7 +278,13 @@ def test_credit_names_who_it_was_made_for(page, page_url):
     page.click("#infoBtn")
     line = page.locator("#siteCredit").inner_text()
     assert "by YogicApproach for yogaedu.org" in line, line
-    assert page.get_attribute("#siteCredit a[href*='yogaedu.org']", "href") == "https://yogaedu.org"
+    # The label is the domain; the href is where the domain will eventually forward. yogaedu.org
+    # does NOT resolve today -- registered, delegated to Cloudflare, zone never activated, so its
+    # nameservers REFUSE every query (verified against Google and Cloudflare resolvers 2026-09-09).
+    # A credit link that 404s on a public page is worse than an indirect one, so it points at the
+    # org until the domain answers. Flip this one href then; the label never changes.
+    href = page.get_attribute("#siteCredit a:has-text('yogaedu.org')", "href")
+    assert href == "https://github.com/yogaedu-org", href
 
 
 def test_the_dates_line_says_excerpts_from_the_syp_corpus(page, page_url):
@@ -326,3 +336,67 @@ def test_edit_removed_entirely_when_the_feature_is_off(browser, tmp_path_factory
     pg.keyboard.press("e")
     assert "edit-on" not in pg.evaluate("document.body.className"), "E must not open a removed UI"
     ctx.close()
+
+
+def test_topbar_controls_stay_right_with_or_without_edit(page, page_url):
+    """KA, 2026-09-09: "The header UI seems to all be on the left side now. I didn't ask for any
+    changes." A regression I introduced with the Edit feature flag: .topbar is space-between with
+    two children, so removing the Edit button left ONE child and space-between parked it on the
+    left. Measured before the fix: the right group spanned 120..599 in a 1160-wide bar.
+
+    Asserted in this build AND in a build with Edit off, because the bug only appears in the
+    second -- a guard that checks only our own build would never have caught it.
+    """
+    page.set_viewport_size({"width": 1280, "height": 900})
+    page.goto(page_url)
+    edge = page.evaluate(
+        "() => {const b=document.querySelector('.topbar').getBoundingClientRect(),"
+        "r=document.querySelector('.topbar .right').getBoundingClientRect();"
+        "return Math.round(b.right - r.right);}")
+    assert edge < 3, f"the controls are not against the right edge (gap {edge}px)"
+
+
+def test_topbar_controls_stay_right_when_edit_is_off(browser, tmp_path_factory):
+    """The same failure, in the configuration that actually exhibited it."""
+    import json as _json, importlib.util as _iu
+    out = tmp_path_factory.mktemp("noedit_bar")
+    for n in ("decks.json", "template.html", "build.py"):
+        (out / n).write_bytes((READER / n).read_bytes())
+    cfg = _json.loads((READER / "config.json").read_text("utf-8"))
+    cfg.setdefault("features", {})["edit"] = False
+    (out / "config.json").write_text(_json.dumps(cfg, ensure_ascii=False), "utf-8")
+    spec = _iu.spec_from_file_location("yr_bar", out / "build.py")
+    mod = _iu.module_from_spec(spec); spec.loader.exec_module(mod)
+    built = mod.build(out / "r.html", here=out)
+
+    ctx = browser.new_context(viewport={"width": 1280, "height": 900})
+    pg = ctx.new_page()
+    pg.goto(built.resolve().as_uri())
+    assert pg.locator("#editBtn").count() == 0
+    edge = pg.evaluate(
+        "() => {const b=document.querySelector('.topbar').getBoundingClientRect(),"
+        "r=document.querySelector('.topbar .right').getBoundingClientRect();"
+        "return Math.round(b.right - r.right);}")
+    ctx.close()
+    assert edge < 3, f"with Edit off the controls drifted left (gap {edge}px)"
+
+
+def test_feedback_never_points_at_a_private_repo(page, page_url):
+    """The named failure: a feedback link into a private tracker looks fine to the one person who
+    can see it and is a dead end for everyone else. Checked on every affordance that opens the
+    form -- the info-line word, its arrow, and the card's flag."""
+    page.goto(page_url)
+    page.evaluate("window.__o=null; window.open=function(u){window.__o=u;};")
+    page.click("#flagBtn")
+    page.wait_for_selector("#flagMsg.show")
+    flag_url = page.evaluate("window.__o")
+    page.click("#infoBtn")
+    urls = [page.get_attribute("#feedbackLink", "href"),
+            page.get_attribute("#feedbackArrow", "href"),
+            flag_url]
+    for u in urls:
+        assert u, "every feedback affordance must have a destination"
+        # Positive assertion only. Naming the private repo here would put it in a file that ships
+        # to the public one -- the export's content scan refuses exactly that, and refused this
+        # test's first draft. Pinning the destination excludes every other repo anyway.
+        assert u.startswith("https://github.com/yogaedu-org/lnmy-reader/"), u
