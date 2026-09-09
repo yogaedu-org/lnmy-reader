@@ -145,8 +145,19 @@ def test_theme_device_mode_restores_the_hosts_own_stamp(browser, page_url):
 
 def test_space_in_the_feedback_box_types_a_space_and_stays_on_the_card(page, page_url):
     """#300: the arrow/space handler skipped only buttons, so a space in the feedback textarea advanced
-    the card and was swallowed (2 of 119 -> 3 of 119 on one keystroke, 2026-09-09)."""
+    the card and was swallowed (2 of 119 -> 3 of 119 on one keystroke, 2026-09-09).
+
+    The box is stripped from the public build (#302), where this failure cannot occur -- so there
+    the test asserts the box really is gone rather than passing vacuously. The same handler is
+    still exercised against a field that exists in BOTH builds by
+    test_typing_in_the_field_fires_no_page_shortcut.
+    """
     page.goto(page_url + f"#tab=quotes&deck={QUOTES}&card=2")
+    has_box = json.loads((READER / "config.json").read_text("utf-8")).get(
+        "features", {}).get("cardFeedback", True)
+    if has_box is False:
+        assert page.locator("#fbText").count() == 0
+        return
     page.click("#fbText")
     page.keyboard.type("a b")
     assert page.input_value("#fbText") == "a b"
