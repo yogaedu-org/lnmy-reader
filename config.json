@@ -93,13 +93,13 @@
   "loop": true,
   "volume": 0.6
  },
- "version": "round-6e 2026-09-10",
+ "version": "round-8 2026-09-12",
  "fit": {
   "quoteMinPx": 24,
   "quoteMaxPx": 52
  },
  "build": {
-  "commit": "1f5a222c1",
-  "when": "2026-09-10 00:54 (NST)"
+  "commit": "883494d4f",
+  "when": "2026-09-12 08:13 (NST)"
  }
 }

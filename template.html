@@ -232,6 +232,9 @@ body.live-on .stage{padding-block:clamp(34px,6vw,74px)}
 /* margin-left:auto, not space-between alone: removing Edit (#302 public build) leaves one
    child, and space-between parks a lone child on the LEFT. This holds either way. */
 .topbar .right{display:inline-flex;align-items:center;gap:18px;margin-left:auto}
+/* #305: KA asked for the three icon controls on the LEFT, order preserved. They sit next to
+   the Edit toggle; margin-left:auto on .right keeps everything else against the right edge. */
+.topbar .left-icons{display:inline-flex;align-items:center;gap:6px}
 body.fit-on .topbar,body.fit-on header,body.fit-on nav.tabs,body.fit-on .decks,body.fit-on .progress,
 body.fit-on .controls,body.fit-on footer,body.fit-on .refs{display:none}
 body.fit-on{overflow:hidden}
@@ -277,29 +280,66 @@ body.fit-on.is-quote .attrib{margin-bottom:auto;font-size:max(1.1rem,calc(var(--
   .controls{flex-direction:column-reverse;align-items:stretch}
   .btn{width:100%}
 }
-/* #301: the flag sits on the card, top right, and says so where you are looking */
-.card-flag{position:absolute;top:10px;right:12px;z-index:5}
-.flag-msg{position:absolute;top:15px;right:46px;z-index:5;font-family:var(--sans);font-size:.78rem;
-  color:var(--muted);opacity:0;transition:opacity .25s ease;pointer-events:none;white-space:nowrap}
-.flag-msg.show{opacity:1}
+/* #305 round 8: the flag moved INTO the reference strip (KA); the card's top right now holds
+   the heart and the share icon, share outermost. */
+.refs{position:relative}
+.refs-flag{position:absolute;top:14px;right:14px;z-index:5}
+/* the flag's reply belongs BESIDE THE FLAG. When the button moved into the reference strip and
+   its message did not, clicking it printed a confirmation off the top of the card (#305). */
+.refs-msg{position:absolute;top:19px;right:46px;z-index:5;font-family:var(--sans);font-size:.78rem;
+  color:var(--muted);opacity:0;transition:opacity .25s ease;pointer-events:none;white-space:nowrap;
+  max-width:min(60vw,30rem);text-align:right}
+.refs-msg.show{opacity:1}
+.card-share{position:absolute;top:10px;right:12px;z-index:6}
+.card-heart{position:absolute;top:10px;right:44px;z-index:6;font-size:1.15rem}
+.card-heart[aria-pressed="true"]{color:var(--ember)}
+.card-msg{position:absolute;top:15px;right:80px;z-index:6;font-family:var(--sans);font-size:.78rem;
+  color:var(--muted);opacity:0;transition:opacity .25s ease;pointer-events:none;white-space:nowrap;
+  max-width:min(60vw,30rem);text-align:right}
+.card-msg.show{opacity:1}
+/* the Favorites bar: its own share button, and the empty-state instruction */
+.favbar{display:none;align-items:center;flex-wrap:wrap;gap:12px;margin:18px 0 0;font-family:var(--sans)}
+body.fav-tab .favbar{display:flex}
+.favbar .btn{padding:6px 14px;font-size:.85rem;box-shadow:none}
+.favnote{font-size:.92rem;color:var(--muted);line-height:1.5}
+body.fit-on .favbar,body.live-on .favbar{display:none}
 /* footer credit + build stamp, after the yogaedu.org study tool */
 .feedback-link{color:var(--ember);font-weight:600}
 .build-stamp{margin:6px 0 0;font-family:var(--sans);font-size:.68rem;letter-spacing:.02em;
   color:var(--muted);opacity:.55}
 .build-stamp code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.66rem}
 body.fit-on .build-stamp{display:none}
+/* #305: overall feedback, pinned bottom-right, above everything, persists across tabs */
+.overall{position:fixed;right:14px;bottom:12px;z-index:20;font-family:var(--sans)}
+.overall-toggle{appearance:none;font:inherit;font-size:.8rem;font-weight:600;letter-spacing:.04em;
+  background:var(--surface);color:var(--muted);border:1px solid var(--line);border-radius:999px;
+  padding:6px 14px;cursor:pointer;box-shadow:var(--shadow)}
+.overall-toggle:hover{color:var(--ink);border-color:var(--muted)}
+.overall-toggle:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
+#overallDot{color:var(--ember);margin-left:6px;font-size:1.1rem;line-height:0}
+.overall-body{margin-top:8px;width:min(94vw,26rem);background:var(--surface);border:1px solid var(--line);
+  border-radius:6px;box-shadow:var(--shadow);padding:10px}
+.overall-body textarea{width:100%;font:inherit;font-family:var(--sans);font-size:.92rem;line-height:1.45;
+  padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:var(--surface);
+  color:var(--ink);resize:vertical}
+.overall-body textarea:focus-visible{outline:2px solid var(--ember);outline-offset:1px}
+.overall-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px}
+.overall-row .btn{padding:6px 12px;font-size:.82rem;box-shadow:none}
+body.fit-on .overall,body.live-on .overall{display:none}
 .linkbar{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin:.4rem 0 .6rem}
 .linkbar input{flex:1 1 18rem;min-width:0;font:inherit;font-size:.9rem;padding:.35rem .5rem;border:1px solid var(--rule,#ccc);border-radius:.3rem;background:inherit;color:inherit}
 </style>
 __THEME_CSS__
 <div class="wrap">
   <div class="topbar">
+    <span class="left-icons">
+      <button class="icon" id="infoBtn" type="button" title="About this reader" aria-expanded="false">&#9432;</button>
+      <button class="icon" id="linkBtn" type="button" title="Parameters: apply tab / deck / cards / card / auto / fit / live to this view, or copy a link to it" aria-expanded="false">&#128279;</button>
+      <button class="icon" id="themeBtn" type="button" title="Theme: follows your device">&#9728;&#9790;</button>
+    </span>
     <button class="live" id="editBtn" type="button" aria-pressed="false" title="Select, reorder, hide and edit cards; copy the result as JSON (E)">
       <span class="switch" aria-hidden="true"></span><span>Edit</span></button>
     <span class="right">
-      <button class="icon" id="infoBtn" type="button" title="About this reader" aria-expanded="false">&#9432;</button>
-      <button class="icon" id="linkBtn" type="button" title="Parameters: apply tab / deck / cards / card / auto / fit / live to this view, or copy a link to it" aria-expanded="false">&#128279;</button>
-      <button class="icon" id="themeBtn" type="button" title="Theme: follows your device">&#9680;</button>
       <button class="live" id="live" type="button" aria-pressed="false"
               title="Hide counts and reference material for screen sharing (L)">
         <span class="switch" aria-hidden="true"></span><span>Live</span></button>
@@ -336,6 +376,11 @@ __THEME_CSS__
 
   <nav class="tabs" id="tabs" role="tablist" aria-label="Reading types"></nav>
   <div class="decks" id="decks"></div>
+  <div class="favbar" id="favbar">
+    <button class="btn" id="favShare" type="button"
+            title="Copy a link that opens this whole set of favourites">&#128279; Share these favourites</button>
+    <span class="favnote" id="favNote"></span>
+  </div>
 
   <div class="progress">
     <div class="bar" id="bar" aria-hidden="true"></div>
@@ -360,9 +405,11 @@ __THEME_CSS__
 
   <main>
     <article id="card" aria-live="polite">
-      <span class="flag-msg" id="flagMsg" role="status" aria-live="polite"></span>
-      <button class="icon card-flag" id="flagBtn" type="button"
-              title="Flag this card: copies its reference and opens the feedback form">&#9873;</button>
+      <span class="card-msg" id="flagMsg" role="status" aria-live="polite"></span>
+      <button class="icon card-heart" id="heartBtn" type="button" aria-pressed="false"
+              title="Add this card to Favorites">&#9825;</button>
+      <button class="icon card-share" id="shareBtn" type="button"
+              title="Copy a link to this card">&#128279;</button>
       <div class="stage">
         <p class="eyebrow" id="eyebrow"></p>
         <h2 id="title"></h2>
@@ -372,6 +419,9 @@ __THEME_CSS__
         <p class="attrib" id="attrib"></p>
       </div>
       <div class="refs">
+        <button class="icon refs-flag" id="flagBtn" type="button"
+                title="Something wrong with this card? Tell us.">&#9873;</button>
+        <span class="refs-msg" id="flagMsg2" role="status" aria-live="polite"></span>
         <p class="refs-h">Reference</p>
         <div class="grid" id="grid"></div>
         <p class="why" id="why"></p>
@@ -398,6 +448,24 @@ __THEME_CSS__
   <footer id="foot"></footer>
 </div>
 
+<!-- #305: "an overall feedback input field ... at the very bottom so it remains visible even
+     between tab shifts and allows me to accumulate non-card specific feedback in one place".
+     Deliberately OUTSIDE .wrap and outside the card, so changing tab or card never clears it,
+     and it is not part of any per-card payload. -->
+<div class="overall" id="overall">
+  <button class="overall-toggle" id="overallToggle" type="button" aria-expanded="false"
+          title="Feedback on the reader as a whole (kept while you move around)">
+    &#9998; Notes<span id="overallDot" hidden>&bull;</span></button>
+  <div class="overall-body" id="overallBody" hidden>
+    <textarea id="overallText" rows="4" placeholder="Anything not about one card — wording, order, a tab that feels thin, an idea. Kept as you move between tabs and cards."></textarea>
+    <div class="overall-row">
+      <button class="btn" id="overallCopy" type="button">Copy as JSON</button>
+      <button class="btn" id="overallClear" type="button">Clear</button>
+      <span class="fb-status" id="overallStatus"></span>
+    </div>
+  </div>
+</div>
+
 <script id="config" type="application/json">__CONFIG_JSON__</script>
 <script id="payload" type="application/json">__PAYLOAD_JSON__</script>
 <script>
@@ -414,6 +482,39 @@ __THEME_CSS__
     t.count = t.decks.reduce(function(n,d){ return n + d.items.length; }, 0);
   });
   TABS = TABS.filter(function(t){ return t.count > 0; });
+
+  // ---------- favourites (#305 round 8) ----------------------------------------------------
+  // Stored as an ARRAY OF CARD IDS, not positions: a card keeps its id when decks are reordered
+  // or re-culled, so a favourite survives a new pass. The tab is appended AFTER the count>0
+  // filter above, deliberately -- it must still show when empty, to carry the instruction.
+  var FAV = [];
+  try { FAV = JSON.parse(localStorage.getItem(SK + "fav") || "[]") || []; } catch (err) { FAV = [];}
+  if (!Array.isArray(FAV)) FAV = [];
+  var FAV_SHARED = null;            // ids arriving via ?fav= -- a shared set, never overwrites yours
+  function favIds(){ return FAV_SHARED || FAV; }
+  function favSave(){ try { localStorage.setItem(SK + "fav", JSON.stringify(FAV)); } catch (err) {} }
+  function favHas(id){ return favIds().indexOf(id) > -1; }
+
+  var FAV_TAB = {id:"favorites", label:"Favorites", kinds:[], synthetic:true,
+                 decks:[{id:"favorites", kind:"favorites", short:"Favorites", label:"Favorites", items:[]}],
+                 count:0};
+  function favRebuild(){
+    var want = favIds(), byId = {};
+    DATA.decks.forEach(function(d){
+      d.items.forEach(function(it){
+        var id = it.id || (d.id + ":" + d.items.indexOf(it));
+        // stamp the SOURCE deck's kind onto the copy: render() reads it.kind first, which is what
+        // lets a favourited quote still render as a quote inside a mixed Favorites deck.
+        if (!byId[id]) byId[id] = Object.assign({}, it, {kind: it.kind || d.kind, id: id});
+      });
+    });
+    var items = [];
+    want.forEach(function(id){ if (byId[id]) items.push(byId[id]); });
+    FAV_TAB.decks[0].items = items;
+    FAV_TAB.count = items.length;
+  }
+  favRebuild();
+  TABS.push(FAV_TAB);
 
   var state = {tab:0, deck:0, idx:0}, pos = {}, PICKS = {};
   function readParams(){   // #297: the fragment form works where a host strips the query string
@@ -444,6 +545,14 @@ __THEME_CSS__
   function item(){ var d = deck(); return d ? d.items[state.idx] : null; }
   function pkey(){ return TABS[state.tab].id + ":" + state.deck; }
   function applyQuery(){
+    // ?fav=<id>,<id> -- a SHARED set of favourites. It never overwrites the viewer's own stored
+    // favourites; it is a view onto someone else's selection until they heart something, at
+    // which point FAV_SHARED is dropped and their own list takes over again.
+    if (Q.get("fav")){
+      var fids = Q.get("fav").split(",").map(function(x){ return decodeURIComponent(x.trim()); })
+                             .filter(function(x){ return !!x; });
+      if (fids.length){ FAV_SHARED = fids; favRebuild(); }
+    }
     if (Q.get("tab")){ var ti = TABS.map(function(t){ return t.id; }).indexOf(Q.get("tab")); if (ti > -1) state.tab = ti; }
     if (Q.get("deck")){ var di = TABS[state.tab].decks.map(function(d){ return d.id; }).indexOf(Q.get("deck")); if (di > -1) state.deck = di; }
     if (Q.get("cards")){ var d = deck(); if (d){ var pk = parseCards(Q.get("cards"), d); if (pk.length){ PICKS[pkey()] = pk; state.idx = pk[0]; } } }
@@ -526,7 +635,25 @@ __THEME_CSS__
     bar.setAttribute("aria-valuenow", String(n ? state.idx+1 : 0));
     bar.setAttribute("aria-valuemax", String(n));
     $("count").innerHTML = "<b>" + (n ? state.idx+1 : 0) + "</b> of " + n;
-    if (!it) return;
+
+    // Favorites bar FIRST, before any early return: with zero favourites there is no card, and
+    // that is exactly when the instruction has to appear (#305 -- it never rendered otherwise).
+    var onFav = TABS[state.tab].id === "favorites";
+    document.body.classList.toggle("fav-tab", onFav);
+    if (onFav){
+      var empty = n === 0;
+      $("favShare").hidden = empty;
+      $("favNote").textContent = empty
+        ? "Press the heart on the card to add it to this Favorites area"
+        : (FAV_SHARED ? n + " shared favourite" + (n === 1 ? "" : "s")
+                      : n + " favourite" + (n === 1 ? "" : "s"));
+    }
+    if (!it){ $("heartBtn").hidden = true; $("shareBtn").hidden = true; return; }
+    $("heartBtn").hidden = false; $("shareBtn").hidden = false;
+    var curId = it.id || (d.id + ":" + state.idx), isFav = FAV.indexOf(curId) > -1;
+    $("heartBtn").innerHTML = isFav ? "&#9829;" : "&#9825;";
+    $("heartBtn").setAttribute("aria-pressed", isFav ? "true" : "false");
+    $("heartBtn").title = isFav ? "Remove from Favorites" : "Add this card to Favorites";
 
     // ---------- stage (what the room sees) ----------
     $("eyebrow").textContent = it.theme || d.label || d.short;
@@ -829,12 +956,78 @@ __THEME_CSS__
     });
   });
   }   // end of the per-card feedback wiring (#302)
-  var flagTimer = null;
-  function flagSay(msg){
-    var el = $("flagMsg"); el.textContent = msg; el.classList.add("show");
-    if (flagTimer) clearTimeout(flagTimer);
-    flagTimer = setTimeout(function(){ el.classList.remove("show"); }, 4000);
+  // ---- overall (non-card) feedback: its own localStorage key, never part of a card payload
+  (function(){
+    var box = $("overall"); if (!box) return;
+    var KEY = SK + "overall", ta = $("overallText"), dot = $("overallDot");
+    function mark(){ dot.hidden = !(ta.value || "").trim(); }
+    try { ta.value = localStorage.getItem(KEY) || ""; } catch (err) {}
+    mark();
+    $("overallToggle").addEventListener("click", function(){
+      var b = $("overallBody"); b.hidden = !b.hidden;
+      $("overallToggle").setAttribute("aria-expanded", b.hidden ? "false" : "true");
+      if (!b.hidden) ta.focus();
+    });
+    ta.addEventListener("input", function(){
+      try { localStorage.setItem(KEY, ta.value); } catch (err) {}
+      mark();
+    });
+    $("overallCopy").addEventListener("click", function(){
+      var t = (ta.value || "").trim();
+      if (!t){ $("overallStatus").textContent = "nothing to copy"; return; }
+      copyText(JSON.stringify({kind: "overall-feedback", version: CONFIG.version || "",
+                               at: new Date().toISOString(), feedback: t}, null, 2), function(ok){
+        $("overallStatus").textContent = ok ? "copied " + hhmm(Date.now()) : "copy blocked by the browser";
+      });
+    });
+    $("overallClear").addEventListener("click", function(){
+      ta.value = ""; try { localStorage.removeItem(KEY); } catch (err) {}
+      mark(); $("overallStatus").textContent = "cleared";
+    });
+  })();
+
+  // ---------- heart + share (#305 round 8) --------------------------------------------------
+  function cardUrl(){
+    var base = location.href.split(/[?#]/)[0];
+    return base + "?" + paramString();
   }
+  $("heartBtn").addEventListener("click", function(){
+    var it = item(); if (!it) return;
+    var d = deck(), id = it.id || (d.id + ":" + state.idx), at = FAV.indexOf(id);
+    if (at > -1) FAV.splice(at, 1); else FAV.push(id);
+    favSave();
+    FAV_SHARED = null;            // touching your own favourites leaves a shared view
+    favRebuild();
+    cardSay(at > -1 ? "removed from Favorites" : "added to Favorites");
+    render();
+  });
+  $("shareBtn").addEventListener("click", function(){
+    copyText(cardUrl(), function(ok){
+      cardSay(ok ? "link for card copied. a collection of favorites can be shared from the Favorites tab."
+                 : "copy blocked by the browser");
+    });
+  });
+  $("favShare").addEventListener("click", function(){
+    var ids = favIds();
+    if (!ids.length){ cardSay("no favourites yet"); return; }
+    var base = location.href.split(/[?#]/)[0];
+    copyText(base + "?tab=favorites&fav=" + ids.map(encodeURIComponent).join(","), function(ok){
+      $("favNote").textContent = ok ? "link copied \u2014 it opens this whole set of favourites"
+                                    : "copy blocked by the browser";
+    });
+  });
+
+  var flagTimer = null, cardTimer = null;
+  function say(el, msg, which){
+    el.textContent = msg; el.classList.add("show");
+    var t = setTimeout(function(){ el.classList.remove("show"); }, 4000);
+    if (which === "flag"){ if (flagTimer) clearTimeout(flagTimer); flagTimer = t; }
+    else { if (cardTimer) clearTimeout(cardTimer); cardTimer = t; }
+  }
+  // the flag lives in the reference strip, so its reply does too
+  function flagSay(msg){ say($("flagMsg2") || $("flagMsg"), msg, "flag"); }
+  // the heart and share live at the card's top right, and so does theirs
+  function cardSay(msg){ say($("flagMsg"), msg, "card"); }
   $("flagBtn").addEventListener("click", function(){
     var d = deck(), it = item(); if (!it) return;
     var h = fbHeader(d, it, TABS[state.tab].id);
@@ -992,7 +1185,10 @@ __THEME_CSS__
   }
   applyModes();
 
-  // ---------- theme (#299): follows the device unless chosen here; ◐ device · ○ light · ● dark ----------
+  // ---------- theme (#299): follows the device unless chosen here.
+  // Glyphs (#305): ☀☾ device · ☀ light · ☾ dark. Circles read as a fill level, not as
+  // light and dark; a sun and a moon need no legend, and both together says "whichever
+  // your device is". ----------
   var root = document.documentElement, HOST_THEME = root.getAttribute("data-theme");
   var THEMES = ["system", "light", "dark"], themeBtn = $("themeBtn");
   function themeGet(){ try { var v = localStorage.getItem(SK + "theme"); return THEMES.indexOf(v) > 0 ? v : "system"; } catch (err) { return "system"; } }
@@ -1000,7 +1196,7 @@ __THEME_CSS__
     if (t === "system"){ if (HOST_THEME) root.setAttribute("data-theme", HOST_THEME); else root.removeAttribute("data-theme"); }
     else root.setAttribute("data-theme", t);
     var next = THEMES[(THEMES.indexOf(t) + 1) % THEMES.length];
-    themeBtn.textContent = t === "system" ? "\u25D0" : t === "light" ? "\u25CB" : "\u25CF";
+    themeBtn.textContent = t === "system" ? "\u2600\u263E" : t === "light" ? "\u2600" : "\u263E";
     themeBtn.title = "Theme: " + (t === "system" ? "follows your device" : t) + " \u2014 click for " + (next === "system" ? "your device setting" : next);
     themeBtn.setAttribute("aria-label", themeBtn.title);
   }
@@ -1014,6 +1210,12 @@ __THEME_CSS__
   // ---------- parameters panel (#297): test and share the URL parameters from inside the reader ----------
   function paramString(){
     var out = ["tab=" + TABS[state.tab].id], d = deck(), pk = pick();
+    if (TABS[state.tab].id === "favorites"){
+      var ids = favIds();
+      if (ids.length) out.push("fav=" + ids.map(encodeURIComponent).join(","));
+      out.push("card=" + (state.idx + 1));
+      return out.join("&");
+    }
     if (d) out.push("deck=" + d.id);
     if (pk) out.push("cards=" + pk.map(function(i){ return i + 1; }).join(","));
     out.push("card=" + (state.idx + 1));

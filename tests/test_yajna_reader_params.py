@@ -38,6 +38,16 @@ def _reader_dir() -> pathlib.Path:
 
 READER = _reader_dir()
 DECKS = {d["id"]: d for d in json.loads((READER / "decks.json").read_text("utf-8"))["decks"]}
+
+
+def shown(deck_id: str) -> int:
+    """How many cards of a deck reach the page.
+
+    A denied card (#305/#306) stays in decks.json -- text, citation and the reason it was
+    denied -- and is not built. Counting the raw file instead of this is how three guards went
+    red the moment 31 off-theme quotes were denied.
+    """
+    return sum(1 for it in DECKS[deck_id]["items"] if it.get("state") != "denied")
 QUOTES = "quotes-sivananda-quotes"
 STORIES = "stories-niranjanananda-stories"
 
@@ -75,7 +85,7 @@ def _count(page) -> str:
 def test_hash_form_opens_the_view(page, page_url):
     page.goto(page_url + f"#tab=quotes&deck={QUOTES}&card=3")
     assert "is-quote" in page.evaluate("document.body.className")
-    assert _count(page) == f"3 of {len(DECKS[QUOTES]['items'])}"
+    assert _count(page) == f"3 of {shown(QUOTES)}"
 
 
 def test_hash_wins_over_query(page, page_url):
@@ -89,7 +99,7 @@ def test_panel_apply_changes_the_view_without_reload(page, page_url):
     page.fill("#linkIn", f"tab=stories&deck={STORIES}&cards=1-3,7&card=2")
     page.click("#linkApply")
     assert "is-quote" not in page.evaluate("document.body.className")
-    assert _count(page) == f"2 of {len(DECKS[STORIES]['items'])}"
+    assert _count(page) == f"2 of {shown(STORIES)}"
     assert page.input_value("#linkIn") == f"tab=stories&deck={STORIES}&cards=1,2,3,7&card=2"
     assert page.locator("#linkMsg").inner_text() == "applied"
 
@@ -102,7 +112,7 @@ def test_typing_in_the_field_fires_no_page_shortcut(page, page_url):
     assert page.get_attribute("#auto", "aria-pressed") == "false"
     assert page.get_attribute("#live", "aria-pressed") == live_before
     assert "edit-on" not in page.evaluate("document.body.className")
-    assert _count(page) == f"3 of {len(DECKS[QUOTES]['items'])}"
+    assert _count(page) == f"3 of {shown(QUOTES)}"
 
 
 def test_field_reports_the_loaded_view(page, page_url):
@@ -123,9 +133,9 @@ def test_theme_toggle_cycles_device_light_dark_and_persists(page, page_url):
     page.click("#themeBtn"); assert _theme(page) == "light"
     page.click("#themeBtn"); assert _theme(page) == "dark"
     page.reload(); assert _theme(page) == "dark"
-    assert page.locator("#themeBtn").inner_text() == "\u25cf"
+    assert page.locator("#themeBtn").inner_text() == "\u263e"          # moon = dark (#305)
     page.click("#themeBtn"); assert _theme(page) is None
-    assert page.locator("#themeBtn").inner_text() == "\u25d0"
+    assert page.locator("#themeBtn").inner_text() == "\u2600\u263e"     # sun+moon = follows device
 
 
 def test_theme_device_mode_restores_the_hosts_own_stamp(browser, page_url):
@@ -161,7 +171,7 @@ def test_space_in_the_feedback_box_types_a_space_and_stays_on_the_card(page, pag
     page.click("#fbText")
     page.keyboard.type("a b")
     assert page.input_value("#fbText") == "a b"
-    assert _count(page) == f"2 of {len(DECKS[QUOTES]['items'])}"
+    assert _count(page) == f"2 of {shown(QUOTES)}"
 
 
 # ---- #298: the top bar overflows at phone width -------------------------------------------------
@@ -209,25 +219,33 @@ def test_flag_sits_on_the_card_not_in_the_topbar(page, page_url):
 
 
 def test_flag_confirms_where_you_can_see_it(page, page_url):
+    """Round 8 moved the flag into the reference strip, so its reply moved with it. The failure
+    this still guards is the original one (#301): a button whose confirmation the reader cannot
+    see. It reappeared the moment the button moved and the message did not."""
     page.goto(page_url)
     page.click("#flagBtn")
-    page.wait_for_selector("#flagMsg.show")          # the copy is a promise; wait for the callback
-    msg = page.locator("#flagMsg")
+    page.wait_for_selector("#flagMsg2.show")         # the copy is a promise; wait for the callback
+    msg = page.locator("#flagMsg2")
     assert msg.is_visible(), "the flag's confirmation must be visible"
     assert "filled in" in msg.inner_text().lower(), msg.inner_text()
     assert page.evaluate(
-        "()=>{const r=document.getElementById('flagMsg').getBoundingClientRect();"
+        "()=>{const r=document.getElementById('flagMsg2').getBoundingClientRect();"
         "return r.top>=0 && r.top<window.innerHeight}"
     ), "the confirmation must be on screen, not buried down the page"
 
 
-def test_flag_confirms_in_live_mode_too(page, page_url):
-    """Live hides the whole reference strip -- the old #fbStatus could never be seen there."""
+def test_the_flag_is_deliberately_absent_in_live_mode(page, page_url):
+    """INVERTED IN ROUND 8, on purpose. The flag now lives in the reference strip, and Live hides
+    that strip entirely -- Live is the room-facing view, where nobody files a defect mid-reading.
+
+    Asserted rather than deleted because the behaviour did not go away, it reversed: if a later
+    change made the flag reachable in Live again, that would be a regression nobody would notice
+    from the reading side. The heart and share DO survive Live, since they sit on the card."""
     page.goto(page_url)
     page.click("#live")
-    page.click("#flagBtn")
-    page.wait_for_selector("#flagMsg.show")
-    assert page.locator("#flagMsg").is_visible()
+    assert page.locator("#flagBtn").is_hidden(), "the flag must not be reachable in Live mode"
+    assert page.locator("#heartBtn").is_visible(), "the heart lives on the card and must survive Live"
+    assert page.locator("#shareBtn").is_visible(), "share lives on the card and must survive Live"
 
 
 # ---- #301 item 4: "where is the Share Feedback link. I was expecting it in the info line; at end of
@@ -399,7 +417,7 @@ def test_feedback_never_points_at_a_private_repo(page, page_url):
     page.goto(page_url)
     page.evaluate("window.__o=null; window.open=function(u){window.__o=u;};")
     page.click("#flagBtn")
-    page.wait_for_selector("#flagMsg.show")
+    page.wait_for_selector("#flagMsg2.show")     # round 8: the flag reports in the reference strip
     flag_url = page.evaluate("window.__o")
     page.click("#infoBtn")
     urls = [page.get_attribute("#feedbackLink", "href"),
@@ -450,7 +468,197 @@ def test_the_flag_still_works_when_the_feedback_box_is_gone(browser, tmp_path_fa
     assert pg.locator("#fb").count() == 0
     pg.evaluate("window.open=function(u){window.__o=u;};")
     pg.click("#flagBtn")
-    pg.wait_for_selector("#flagMsg.show")
-    assert "filled in" in pg.locator("#flagMsg").inner_text().lower()
+    pg.wait_for_selector("#flagMsg2.show")       # round 8: the flag reports in the reference strip
+    assert "filled in" in pg.locator("#flagMsg2").inner_text().lower()
     assert errors == [], errors
     ctx.close()
+
+
+# ---- #305 round 7 ---------------------------------------------------------------------------
+def test_the_three_icon_controls_sit_on_the_left_in_order(page, page_url):
+    """KA: "move top three UI elements in header to left side; maintain order." Order matters --
+    he navigates by position, so ⓘ 🔗 ☀ must stay in that sequence, not merely be on the left."""
+    page.set_viewport_size({"width": 1280, "height": 900})
+    page.goto(page_url)
+    x = page.evaluate("""()=>{const g=i=>document.getElementById(i).getBoundingClientRect().left;
+        const b=document.querySelector('.topbar').getBoundingClientRect();
+        return {info:g('infoBtn'), link:g('linkBtn'), theme:g('themeBtn'), mid:(b.left+b.right)/2};}""")
+    assert x["info"] < x["link"] < x["theme"], x
+    assert x["theme"] < x["mid"], f"the icons are not on the left half: {x}"
+
+
+def test_theme_icon_is_a_sun_and_moon_not_circles(page, page_url):
+    """KA: "light/dark toggle isn't clear icon. half moon-sun is more clear." The circles read as
+    a fill level; a sun and a moon need no legend."""
+    page.goto(page_url)
+    assert page.locator("#themeBtn").inner_text() == "\u2600\u263e"   # device
+    page.click("#themeBtn")
+    assert page.locator("#themeBtn").inner_text() == "\u2600"          # light
+    page.click("#themeBtn")
+    assert page.locator("#themeBtn").inner_text() == "\u263e"          # dark
+
+
+def test_overall_feedback_survives_moving_around(page, page_url):
+    """KA: "an overall feedback input field ... at the very bottom so it remains visible even
+    between tab shifts and allows me to accumulate non-card specific feedback in one place while
+    navigating around."
+
+    The named failure is losing what he typed. The per-card box is rebuilt on every card change;
+    this one must not be, so it lives outside .wrap and keys its own storage.
+    """
+    page.goto(page_url)
+    page.click("#overallToggle")
+    page.fill("#overallText", "the quotes tab feels thin now")
+    page.click("nav.tabs button >> nth=1")
+    page.keyboard.press("ArrowRight")
+    page.click("nav.tabs button >> nth=0")
+    assert page.input_value("#overallText") == "the quotes tab feels thin now"
+    assert page.locator("#overallToggle").is_visible(), "the field must stay reachable"
+
+
+def test_overall_feedback_is_not_part_of_any_card(page, page_url):
+    """It must never end up in a card's flag payload -- that is what the per-card box is for."""
+    page.goto(page_url)
+    page.click("#overallToggle")
+    page.fill("#overallText", "UNIQUE-OVERALL-MARKER")
+    page.evaluate("window.__o=null; window.open=function(u){window.__o=u;};")
+    page.click("#flagBtn")
+    page.wait_for_selector("#flagMsg2.show")     # round 8: the flag reports in the reference strip
+    assert "UNIQUE-OVERALL-MARKER" not in (page.evaluate("window.__o") or "")
+
+
+def test_denied_cards_never_reach_the_page(page, page_url):
+    """#305 item 10 / #306. A denied card keeps its text and its reason in decks.json and is not
+    built. The failure this catches is a curation decision silently not taking effect -- or, worse,
+    a denied reading appearing on screen in front of the room."""
+    page.goto(page_url)
+    payload = page.evaluate("JSON.parse(document.getElementById('payload').textContent)")
+    built = {it["id"] for d in payload["decks"] for it in d["items"]}
+    denied = {it["id"] for d in DECKS.values() for it in d["items"] if it.get("state") == "denied"}
+    assert denied, "no card is denied -- has the cull been reverted?"
+    assert not (built & denied), sorted(built & denied)[:5]
+    for d in DECKS.values():
+        for it in d["items"]:
+            if it.get("state") == "denied":
+                assert it.get("md"), "a denied card must keep its text"
+                assert (it.get("review") or {}).get("note"), "a denied card must say why"
+
+
+# ---- #305 round 8: favourites, share, flag in the reference strip --------------------------
+def test_flag_moved_into_the_reference_strip(page, page_url):
+    """KA: "move flag icon for all cards to the top right corner of the meta data div with hover
+    info/text of what it does (simple wording)." It must be INSIDE .refs -- not merely somewhere
+    on the card -- because that is what puts it beside the metadata it reports on."""
+    page.goto(page_url)
+    assert page.evaluate("!!document.querySelector('article#card .refs #flagBtn')")
+    assert not page.evaluate("!!document.querySelector('.topbar #flagBtn')")
+    title = page.get_attribute("#flagBtn", "title")
+    assert title and "wrong" in title.lower(), title
+
+
+def test_heart_takes_the_flags_old_place_and_persists(page, page_url):
+    """KA: "replace the current flag position, top right of text card, a heart option."
+    The named failure is a favourite that does not survive a reload -- a heart that forgets is
+    worse than no heart, because the reader believes the card is saved."""
+    page.goto(page_url + f"#tab=quotes&deck={QUOTES}&card=3")
+    heart = page.locator("#heartBtn")
+    assert heart.is_visible()
+    assert heart.get_attribute("aria-pressed") == "false"
+    heart.click()
+    assert page.locator("#heartBtn").get_attribute("aria-pressed") == "true"
+    page.reload()
+    page.goto(page_url + f"#tab=quotes&deck={QUOTES}&card=3")
+    assert page.locator("#heartBtn").get_attribute("aria-pressed") == "true", "the favourite was lost on reload"
+
+
+def test_share_copies_a_link_to_this_card(page, page_url):
+    """KA: "clicking that copies the card specific URL to the clip board. a small message floats"."""
+    page.goto(page_url + f"#tab=quotes&deck={QUOTES}&card=3")
+    page.click("#shareBtn")
+    page.wait_for_selector("#flagMsg.show")
+    msg = page.locator("#flagMsg").inner_text()
+    assert "link for card copied" in msg.lower(), msg
+    assert "favorites tab" in msg.lower(), msg
+    got = page.evaluate("navigator.clipboard.readText()")
+    assert "tab=quotes" in got and "card=3" in got, got
+
+
+def test_favorites_tab_exists_and_shows_when_empty(page, page_url):
+    """KA: "A fifth tab contains the hearted cards" and, when empty, "a simple instruction/note".
+
+    The named failure: tabs are filtered to count > 0, so a naive Favorites tab VANISHES exactly
+    when the instruction is needed most -- before anything has been hearted.
+    """
+    page.goto(page_url)
+    labels = page.locator("nav.tabs .tab").all_inner_texts()
+    assert any("Favorites" in t for t in labels), labels
+    # QUERY, not hash: a hash-only change on an already-loaded page does not reload, so
+    # applyQuery() would never re-run and the tab would never switch.
+    page.goto(page_url + "?tab=favorites")
+    assert page.locator("#favNote").inner_text().strip() == \
+        "Press the heart on the card to add it to this Favorites area"
+    assert page.locator("#favShare").is_hidden(), "nothing to share when there is nothing hearted"
+
+
+def test_a_favourited_quote_still_renders_as_a_quote(page, page_url):
+    """THE detail the whole Favorites design rests on. render() decides `is-quote` from the
+    ITEM's kind before falling back to the tab id, so every card copied into the synthetic
+    Favorites deck must carry `kind` from its source deck. Without that stamp a favourited quote
+    would render as a plain reading -- wrong type face, wrong centring, no quote mark."""
+    page.goto(page_url + f"#tab=quotes&deck={QUOTES}&card=3")
+    page.click("#heartBtn")
+    # QUERY, not hash. With a hash-only change the page never reloads, `is-quote` is still set
+    # from the quotes tab we came from, and this assertion passes even if the kind-stamp is
+    # broken -- which is exactly how this test was green while proving nothing.
+    page.goto(page_url + "?tab=favorites")
+    assert page.evaluate("document.getElementById('count').textContent").strip().endswith("of 1"), \
+        "the favourite did not reach the Favorites deck at all"
+    assert "is-quote" in page.evaluate("document.body.className"), \
+        "a favourited quote lost its quote styling inside Favorites"
+
+
+def test_favorites_share_button_copies_a_set_url(page, page_url):
+    """KA: "the new Favorites tab should have a share button as well that copies to the clipboard
+    the url which notes the favorite readings"."""
+    page.goto(page_url + f"#tab=quotes&deck={QUOTES}&card=3")
+    page.click("#heartBtn")
+    page.goto(page_url + "?tab=favorites")       # query, not hash -- see above
+    page.click("#favShare")
+    got = page.evaluate("navigator.clipboard.readText()")
+    assert "tab=favorites" in got and "fav=" in got, got
+
+
+def test_a_shared_favourites_url_opens_that_set(page, page_url):
+    """The gap this catches was real and was in my own first draft: `fav=` was EMITTED but never
+    READ, so a shared link opened showing the viewer's own favourites instead of the sender's.
+    A link that silently shows the wrong thing is worse than one that visibly fails."""
+    ids = [it["id"] for it in DECKS[QUOTES]["items"] if it.get("state") != "denied"][:2]
+    page.goto(page_url + "#tab=favorites&fav=" + ",".join(ids))
+    assert _count(page) == f"1 of {len(ids)}", _count(page)
+    assert page.locator("#favShare").is_visible()
+    assert "shared favourite" in page.locator("#favNote").inner_text()
+
+
+def test_info_icon_is_leftmost_in_the_top_bar(page, page_url):
+    """KA: "info icon should be top left." Previously the Edit toggle sat left of it.
+
+    This file ships to the PUBLIC repo too, where `features.edit` is false and the Edit button is
+    REMOVED, not hidden. A first version read editBtn unconditionally and died there with
+    "Cannot read properties of null" -- passing in the dev build and failing in the export, which
+    is the exact trap EXPORT.md warns about. The ordering of the three icon controls is asserted
+    always; Edit is compared only where Edit exists.
+    """
+    page.set_viewport_size({"width": 1280, "height": 900})
+    page.goto(page_url)
+    x = page.evaluate("""()=>{const g=i=>{const e=document.getElementById(i);
+            return e ? e.getBoundingClientRect().left : null;};
+        return {info:g('infoBtn'), link:g('linkBtn'), theme:g('themeBtn'), edit:g('editBtn')};}""")
+    assert x["info"] is not None and x["link"] is not None and x["theme"] is not None, x
+    assert x["info"] < x["link"] < x["theme"], x
+    edit_on = json.loads((READER / "config.json").read_text("utf-8")).get(
+        "features", {}).get("edit", True)
+    if edit_on:
+        assert x["edit"] is not None, "this build declares edit on, so the button must be there"
+        assert x["info"] < x["edit"], f"the Edit toggle is still left of the info icon: {x}"
+    else:
+        assert x["edit"] is None, "edit is off, so the button must be removed, not merely hidden"

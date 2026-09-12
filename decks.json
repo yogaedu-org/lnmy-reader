@@ -3156,7 +3156,13 @@
      "event": "",
      "date": "",
      "source_file": "kb/corpus/fulltext/Swami Sivananda’s 18 ities & the Practice of Pratyahara.txt",
-     "id": "quotes-sivananda-quotes:discipline-and-sadhana-13"
+     "id": "quotes-sivananda-quotes:discipline-and-sadhana-13",
+     "state": "denied",
+     "review": {
+      "note": "generic mind/meditation aphorism: no link to yajna, guru, seva, devotion or the qualities the swamis praise here",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "title": "Discipline and Sadhana",
@@ -3420,7 +3426,13 @@
      "event": "",
      "date": "",
      "source_file": "kb/corpus/fulltext/Hatha Yoga for Everyone.txt",
-     "id": "quotes-sivananda-quotes:discipline-and-sadhana-25"
+     "id": "quotes-sivananda-quotes:discipline-and-sadhana-25",
+     "state": "denied",
+     "review": {
+      "note": "off-topic for a yajna reading",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "title": "Discipline and Sadhana",
@@ -3552,7 +3564,13 @@
      "event": "",
      "date": "",
      "source_file": "kb/corpus/fulltext/_-Sep_2013_Yoga-en-2013-_-_-_.txt",
-     "id": "quotes-sivananda-quotes:discipline-and-sadhana-31"
+     "id": "quotes-sivananda-quotes:discipline-and-sadhana-31",
+     "state": "denied",
+     "review": {
+      "note": "general conduct advice, not tied to the yajna or its themes",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "title": "Discipline and Sadhana",
@@ -3618,7 +3636,13 @@
      "event": "",
      "date": "",
      "source_file": "kb/corpus/fulltext/Swami Sivananda’s 18 ities & the Practice of Pratyahara.txt",
-     "id": "quotes-sivananda-quotes:practical-daily-instruction-2"
+     "id": "quotes-sivananda-quotes:practical-daily-instruction-2",
+     "state": "denied",
+     "review": {
+      "note": "general conduct advice, not tied to the yajna or its themes",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "title": "Practical Daily Instruction",
@@ -3684,7 +3708,13 @@
      "event": "",
      "date": "",
      "source_file": "kb/corpus/fulltext/Swami Sivananda’s 18 ities & the Practice of Pratyahara.txt",
-     "id": "quotes-sivananda-quotes:practical-daily-instruction-5"
+     "id": "quotes-sivananda-quotes:practical-daily-instruction-5",
+     "state": "denied",
+     "review": {
+      "note": "general conduct advice, not tied to the yajna or its themes",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "title": "Practical Daily Instruction",
@@ -3992,7 +4022,13 @@
      "event": "",
      "date": "",
      "source_file": "kb/corpus/fulltext/Overview_and_Practice_Capsules-Bhakti_Yoga_for_Everyone-en-2018-_-1-_.txt",
-     "id": "quotes-sivananda-quotes:practical-daily-instruction-19"
+     "id": "quotes-sivananda-quotes:practical-daily-instruction-19",
+     "state": "denied",
+     "review": {
+      "note": "off-topic for a yajna reading",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "title": "Practical Daily Instruction",
@@ -4080,7 +4116,13 @@
      "event": "",
      "date": "",
      "source_file": "kb/corpus/fulltext/Hatha Yoga for Everyone.txt",
-     "id": "quotes-sivananda-quotes:practical-daily-instruction-23"
+     "id": "quotes-sivananda-quotes:practical-daily-instruction-23",
+     "state": "denied",
+     "review": {
+      "note": "off-topic for a yajna reading",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "title": "Practical Daily Instruction",
@@ -4168,7 +4210,13 @@
      "event": "",
      "date": "",
      "source_file": "kb/corpus/fulltext/_-Apr_2016_Yoga-en-2016-_-_-_.txt",
-     "id": "quotes-sivananda-quotes:practical-daily-instruction-27"
+     "id": "quotes-sivananda-quotes:practical-daily-instruction-27",
+     "state": "denied",
+     "review": {
+      "note": "generic mind/meditation aphorism: no link to yajna, guru, seva, devotion or the qualities the swamis praise here",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "title": "Practical Daily Instruction",
@@ -4542,7 +4590,13 @@
      "event": "",
      "date": "",
      "source_file": "kb/corpus/fulltext/Guru Charitra.txt",
-     "id": "quotes-sivananda-quotes:fearlessness-and-equanimity-11"
+     "id": "quotes-sivananda-quotes:fearlessness-and-equanimity-11",
+     "state": "denied",
+     "review": {
+      "note": "too slight to carry a screen on its own",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "title": "Death and the Eternal",
@@ -4586,7 +4640,13 @@
      "event": "",
      "date": "",
      "source_file": "kb/corpus/fulltext/Swami Sivananda’s 18 ities & the Practice of Pratyahara.txt",
-     "id": "quotes-sivananda-quotes:death-and-the-eternal-2"
+     "id": "quotes-sivananda-quotes:death-and-the-eternal-2",
+     "state": "denied",
+     "review": {
+      "note": "generic mind/meditation aphorism: no link to yajna, guru, seva, devotion or the qualities the swamis praise here",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "title": "Death and the Eternal",
@@ -6676,7 +6736,13 @@
      "words": 21,
      "event": "",
      "date": "",
-     "source_file": "kb/corpus/fulltext/Volume 13 _ On the Wings of the Swan.txt"
+     "source_file": "kb/corpus/fulltext/Volume 13 _ On the Wings of the Swan.txt",
+     "state": "denied",
+     "review": {
+      "note": "generic mind/meditation aphorism: no link to yajna, guru, seva, devotion or the qualities the swamis praise here",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "id": "quotes-niranjanananda-quotes:peace-gets-disturbed-when-the-mind-is-confused",
@@ -6698,7 +6764,13 @@
      "words": 19,
      "event": "",
      "date": "",
-     "source_file": "kb/corpus/fulltext/Sw_Niranjanananda_Saraswati-Volume_15_On_the_Wings_of_the_Swan-en-2026-_-1-_.txt"
+     "source_file": "kb/corpus/fulltext/Sw_Niranjanananda_Saraswati-Volume_15_On_the_Wings_of_the_Swan-en-2026-_-1-_.txt",
+     "state": "denied",
+     "review": {
+      "note": "generic mind/meditation aphorism: no link to yajna, guru, seva, devotion or the qualities the swamis praise here",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "id": "quotes-niranjanananda-quotes:what-changes-and-alters-the-lifestyle-is-your-mi",
@@ -6720,7 +6792,13 @@
      "words": 14,
      "event": "",
      "date": "",
-     "source_file": "kb/corpus/fulltext/Volume 13 _ On the Wings of the Swan.txt"
+     "source_file": "kb/corpus/fulltext/Volume 13 _ On the Wings of the Swan.txt",
+     "state": "denied",
+     "review": {
+      "note": "generic mind/meditation aphorism: no link to yajna, guru, seva, devotion or the qualities the swamis praise here",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "id": "quotes-niranjanananda-quotes:the-happiness-that-lives-with-you-in-your-heart",
@@ -6742,7 +6820,13 @@
      "words": 17,
      "event": "",
      "date": "",
-     "source_file": "kb/corpus/fulltext/Sw_Niranjanananda_Saraswati-Volume_15_On_the_Wings_of_the_Swan-en-2026-_-1-_.txt"
+     "source_file": "kb/corpus/fulltext/Sw_Niranjanananda_Saraswati-Volume_15_On_the_Wings_of_the_Swan-en-2026-_-1-_.txt",
+     "state": "denied",
+     "review": {
+      "note": "generic mind/meditation aphorism: no link to yajna, guru, seva, devotion or the qualities the swamis praise here",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "id": "quotes-niranjanananda-quotes:the-purpose-of-living-is-to-experience-the-posit",
@@ -6764,7 +6848,13 @@
      "words": 21,
      "event": "",
      "date": "",
-     "source_file": "kb/corpus/fulltext/Volume 13 _ On the Wings of the Swan.txt"
+     "source_file": "kb/corpus/fulltext/Volume 13 _ On the Wings of the Swan.txt",
+     "state": "denied",
+     "review": {
+      "note": "generic mind/meditation aphorism: no link to yajna, guru, seva, devotion or the qualities the swamis praise here",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "id": "quotes-niranjanananda-quotes:the-colour-of-life-is-happiness-the-colour-of-l",
@@ -6786,7 +6876,13 @@
      "words": 19,
      "event": "",
      "date": "",
-     "source_file": "kb/corpus/fulltext/Sw_Niranjanananda_Saraswati-Volume_15_On_the_Wings_of_the_Swan-en-2026-_-1-_.txt"
+     "source_file": "kb/corpus/fulltext/Sw_Niranjanananda_Saraswati-Volume_15_On_the_Wings_of_the_Swan-en-2026-_-1-_.txt",
+     "state": "denied",
+     "review": {
+      "note": "generic mind/meditation aphorism: no link to yajna, guru, seva, devotion or the qualities the swamis praise here",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "id": "quotes-niranjanananda-quotes:people-want-peace-but-there-is-no-peace-because",
@@ -6808,7 +6904,13 @@
      "words": 16,
      "event": "",
      "date": "",
-     "source_file": "kb/corpus/fulltext/Volume 13 _ On the Wings of the Swan.txt"
+     "source_file": "kb/corpus/fulltext/Volume 13 _ On the Wings of the Swan.txt",
+     "state": "denied",
+     "review": {
+      "note": "generic mind/meditation aphorism: no link to yajna, guru, seva, devotion or the qualities the swamis praise here",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "id": "quotes-niranjanananda-quotes:once-it-is-cultivated-we-connect-with-positivit",
@@ -6830,7 +6932,13 @@
      "words": 33,
      "event": "",
      "date": "",
-     "source_file": "kb/corpus/fulltext/Sw_Niranjanananda_Saraswati-Volume_15_On_the_Wings_of_the_Swan-en-2026-_-1-_.txt"
+     "source_file": "kb/corpus/fulltext/Sw_Niranjanananda_Saraswati-Volume_15_On_the_Wings_of_the_Swan-en-2026-_-1-_.txt",
+     "state": "denied",
+     "review": {
+      "note": "generic mind/meditation aphorism: no link to yajna, guru, seva, devotion or the qualities the swamis praise here",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "id": "quotes-niranjanananda-quotes:the-most-important-aspect-of-living-the-ashram-l",
@@ -7006,7 +7114,13 @@
      "words": 18,
      "event": "",
      "date": "",
-     "source_file": "kb/corpus/fulltext/Sw_Niranjanananda_Saraswati-Volume_15_On_the_Wings_of_the_Swan-en-2026-_-1-_.txt"
+     "source_file": "kb/corpus/fulltext/Sw_Niranjanananda_Saraswati-Volume_15_On_the_Wings_of_the_Swan-en-2026-_-1-_.txt",
+     "state": "denied",
+     "review": {
+      "note": "generic mind/meditation aphorism: no link to yajna, guru, seva, devotion or the qualities the swamis praise here",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "id": "quotes-niranjanananda-quotes:meditation-indicates-a-state-of-peace-not-strug",
@@ -7028,7 +7142,13 @@
      "words": 33,
      "event": "",
      "date": "",
-     "source_file": "kb/corpus/fulltext/Volume 17_ On the Wings of the Swan.txt"
+     "source_file": "kb/corpus/fulltext/Volume 17_ On the Wings of the Swan.txt",
+     "state": "denied",
+     "review": {
+      "note": "generic mind/meditation aphorism: no link to yajna, guru, seva, devotion or the qualities the swamis praise here",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "id": "quotes-niranjanananda-quotes:mental-practice-is-not-meditation-mental-practi",
@@ -7050,7 +7170,13 @@
      "words": 16,
      "event": "",
      "date": "",
-     "source_file": "kb/corpus/fulltext/Volume 17_ On the Wings of the Swan.txt"
+     "source_file": "kb/corpus/fulltext/Volume 17_ On the Wings of the Swan.txt",
+     "state": "denied",
+     "review": {
+      "note": "generic mind/meditation aphorism: no link to yajna, guru, seva, devotion or the qualities the swamis praise here",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "id": "quotes-niranjanananda-quotes:awareness-without-observation-is-no-awareness-t",
@@ -7072,7 +7198,13 @@
      "words": 17,
      "event": "",
      "date": "",
-     "source_file": "kb/corpus/fulltext/Volume 17_ On the Wings of the Swan.txt"
+     "source_file": "kb/corpus/fulltext/Volume 17_ On the Wings of the Swan.txt",
+     "state": "denied",
+     "review": {
+      "note": "generic mind/meditation aphorism: no link to yajna, guru, seva, devotion or the qualities the swamis praise here",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "id": "quotes-niranjanananda-quotes:the-dissipated-mind-is-the-natural-mind-and-con",
@@ -7094,7 +7226,13 @@
      "words": 19,
      "event": "",
      "date": "",
-     "source_file": "kb/corpus/fulltext/Sw_Niranjanananda_Saraswati-Volume_16_On_the_Wings_of_the_Swan-en-2026-_-1-_.txt"
+     "source_file": "kb/corpus/fulltext/Sw_Niranjanananda_Saraswati-Volume_16_On_the_Wings_of_the_Swan-en-2026-_-1-_.txt",
+     "state": "denied",
+     "review": {
+      "note": "generic mind/meditation aphorism: no link to yajna, guru, seva, devotion or the qualities the swamis praise here",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "id": "quotes-niranjanananda-quotes:in-english-disciple-means-one-who-lives-in-disc",
@@ -7147,7 +7285,13 @@
      "words": 20,
      "event": "",
      "date": "",
-     "source_file": "kb/corpus/fulltext/Sw_Satyasangananda_Saraswati-Sri_Vijnana_Bhairava_Tantra_The_Ascent-en-2003-2014-1-_.txt"
+     "source_file": "kb/corpus/fulltext/Sw_Satyasangananda_Saraswati-Sri_Vijnana_Bhairava_Tantra_The_Ascent-en-2003-2014-1-_.txt",
+     "state": "denied",
+     "review": {
+      "note": "generic mind/meditation aphorism: no link to yajna, guru, seva, devotion or the qualities the swamis praise here",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "id": "quotes-satyasangananda-quotes:thoughts-nourish-the-mind-giving-it-vigour-and",
@@ -7191,7 +7335,13 @@
      "words": 33,
      "event": "",
      "date": "",
-     "source_file": "kb/corpus/fulltext/Sw_Satyasangananda_Saraswati-Sri_Vijnana_Bhairava_Tantra_The_Ascent-en-2003-2014-1-_.txt"
+     "source_file": "kb/corpus/fulltext/Sw_Satyasangananda_Saraswati-Sri_Vijnana_Bhairava_Tantra_The_Ascent-en-2003-2014-1-_.txt",
+     "state": "denied",
+     "review": {
+      "note": "generic mind/meditation aphorism: no link to yajna, guru, seva, devotion or the qualities the swamis praise here",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "id": "quotes-satyasangananda-quotes:just-as-a-river-expanding-into-the-ocean-loses-i",
@@ -7213,7 +7363,13 @@
      "words": 34,
      "event": "",
      "date": "",
-     "source_file": "kb/corpus/fulltext/Sw_Satyasangananda-Tattwa_Shuddhi-en-1984-2013-1-_.txt"
+     "source_file": "kb/corpus/fulltext/Sw_Satyasangananda-Tattwa_Shuddhi-en-1984-2013-1-_.txt",
+     "state": "denied",
+     "review": {
+      "note": "generic mind/meditation aphorism: no link to yajna, guru, seva, devotion or the qualities the swamis praise here",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "id": "quotes-satyasangananda-quotes:you-have-to-give-your-whole-mind-to-whatever-you",
@@ -7257,7 +7413,13 @@
      "words": 18,
      "event": "",
      "date": "",
-     "source_file": "kb/corpus/fulltext/Sw_Satyasangananda_Saraswati-Satsangs_on_Yoga-en-2008-2013-1-_.txt"
+     "source_file": "kb/corpus/fulltext/Sw_Satyasangananda_Saraswati-Satsangs_on_Yoga-en-2008-2013-1-_.txt",
+     "state": "denied",
+     "review": {
+      "note": "generic mind/meditation aphorism: no link to yajna, guru, seva, devotion or the qualities the swamis praise here",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "id": "quotes-satyasangananda-quotes:in-fact-peace-of-mind-is-a-prerequisite-and-not",
@@ -7279,7 +7441,13 @@
      "words": 20,
      "event": "",
      "date": "",
-     "source_file": "kb/corpus/fulltext/Sw_Satyasangananda_Saraswati-Satsangs_on_Yoga-en-2008-2013-1-_.txt"
+     "source_file": "kb/corpus/fulltext/Sw_Satyasangananda_Saraswati-Satsangs_on_Yoga-en-2008-2013-1-_.txt",
+     "state": "denied",
+     "review": {
+      "note": "generic mind/meditation aphorism: no link to yajna, guru, seva, devotion or the qualities the swamis praise here",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "id": "quotes-satyasangananda-quotes:it-is-only-the-person-who-has-total-equipoise-of",
@@ -7301,7 +7469,13 @@
      "words": 21,
      "event": "",
      "date": "",
-     "source_file": "kb/corpus/fulltext/Sw_Satyasangananda_Saraswati-Satsangs_on_Yoga-en-2008-2013-1-_.txt"
+     "source_file": "kb/corpus/fulltext/Sw_Satyasangananda_Saraswati-Satsangs_on_Yoga-en-2008-2013-1-_.txt",
+     "state": "denied",
+     "review": {
+      "note": "generic mind/meditation aphorism: no link to yajna, guru, seva, devotion or the qualities the swamis praise here",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "id": "quotes-satyasangananda-quotes:you-have-only-to-make-a-sincere-effort-not-a-su",
@@ -7323,7 +7497,13 @@
      "words": 16,
      "event": "",
      "date": "",
-     "source_file": "kb/corpus/fulltext/Sw_Satyasangananda_Saraswati-Satsangs_on_Yoga-en-2008-2013-1-_.txt"
+     "source_file": "kb/corpus/fulltext/Sw_Satyasangananda_Saraswati-Satsangs_on_Yoga-en-2008-2013-1-_.txt",
+     "state": "denied",
+     "review": {
+      "note": "generic mind/meditation aphorism: no link to yajna, guru, seva, devotion or the qualities the swamis praise here",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "id": "quotes-satyasangananda-quotes:it-is-not-the-quantity-of-the-practices-but-reg",
@@ -7433,7 +7613,13 @@
      "words": 14,
      "event": "",
      "date": "",
-     "source_file": "kb/corpus/fulltext/Karma Sannyasa.txt"
+     "source_file": "kb/corpus/fulltext/Karma Sannyasa.txt",
+     "state": "denied",
+     "review": {
+      "note": "generic mind/meditation aphorism: no link to yajna, guru, seva, devotion or the qualities the swamis praise here",
+      "at": "2026-09-10T22:06:17+05:45",
+      "by": "KA via Claude (#305 item 10)"
+     }
     },
     {
      "id": "quotes-satyasangananda-quotes:karma-yoga-gives-you-a-new-approach-to-life-a-v",

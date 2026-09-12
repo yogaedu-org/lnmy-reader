@@ -72,6 +72,15 @@ def build(out: pathlib.Path | None = None, here: pathlib.Path = HERE) -> pathlib
     # an exporter building outside the repo pre-seeds the stamp; git is unreachable there (#302)
     cfg["build"] = cfg.get("build") or build_stamp(here)
     expose_path = bool((cfg.get("features") or {}).get("showSourceFile"))   # #299: internal paths stay out of the page
+    # CARD STATE (#305/#306). A denied card stays in decks.json -- text, citation and the reason
+    # it was denied -- and simply is not built. Absent state means accepted, so every card
+    # written before states existed behaves exactly as it did. Held-back cards are COUNTED and
+    # reported: a curation decision that removes 31 readings must never be silent.
+    denied = 0
+    for d in decks["decks"]:
+        keep = [it for it in d["items"] if it.get("state") != "denied"]
+        denied += len(d["items"]) - len(keep)
+        d["items"] = keep
     for d in decks["decks"]:
         for it in d["items"]:
             if not expose_path:
@@ -89,7 +98,8 @@ def build(out: pathlib.Path | None = None, here: pathlib.Path = HERE) -> pathlib
     target = out or (here / cfg.get("output", "yajna-reader.html"))
     target.write_text(html, "utf-8", newline="\n")
     n = sum(len(d["items"]) for d in decks["decks"])
-    print(f"built {target} - {len(decks['decks'])} decks, {n} cards, {target.stat().st_size:,} bytes")
+    held = f", {denied} denied held back" if denied else ""
+    print(f"built {target} - {len(decks['decks'])} decks, {n} cards{held}, {target.stat().st_size:,} bytes")
     return target
 
 
