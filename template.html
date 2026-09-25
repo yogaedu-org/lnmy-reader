@@ -803,7 +803,10 @@ __THEME_CSS__
   }
   // ---------- edit mode (#280): local order / hidden / edits / selection, applied to DATA before render ----------
   var ED = {order:{}, hidden:{}, edits:{}, selected:[]};
-  try { var ed0 = JSON.parse(localStorage.getItem(SK + "edit") || "null"); if (ed0 && ed0.order) ED = ed0; } catch (err) {}
+  // #337: a stored state missing a key (or holding the wrong shape) must never blank the page -- fill
+  // the defaults, and if applying it still throws, drop it and clear the key so the next load is clean.
+  try { var ed0 = JSON.parse(localStorage.getItem(SK + "edit") || "null");
+    if (ed0 && typeof ed0 === "object") ED = {order: ed0.order || {}, hidden: ed0.hidden || {}, edits: ed0.edits || {}, selected: Array.isArray(ed0.selected) ? ed0.selected : []}; } catch (err) {}
   function edSave(){ try { localStorage.setItem(SK + "edit", JSON.stringify(ED)); } catch (err) {} }
   var ORIG = {};   // deck id -> original items (unfiltered), so hidden/reorder/edits are reversible in-page
   DATA.decks.forEach(function(d){ ORIG[d.id] = d.items.map(function(it){ return Object.assign({}, it); }); });
@@ -823,7 +826,8 @@ __THEME_CSS__
     });
     TABS.forEach(function(t){ t.count = t.decks.reduce(function(n,d){ return n + d.items.length; }, 0); });
   }
-  edApply();
+  try { edApply(); }
+  catch (err) { ED = {order:{}, hidden:{}, edits:{}, selected:[]}; try { localStorage.removeItem(SK + "edit"); } catch (e2) {} edApply(); }
   function edSelInfo(){ $("edSelN").textContent = ED.selected.length ? "(" + ED.selected.length + ")" : ""; }
   function edHeader(kind){
     return {_this_is: "Yajna Reader " + kind + " — " + (CONFIG.repo || "repo?") + " " + (CONFIG.project || "project?")
