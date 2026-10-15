@@ -2,6 +2,8 @@
 
 One reading at a time, on a screen a room can follow.
 
+**Start here:** read it at the link below; to change it, edit `decks.json` / `config.json` / `template.html` and rebuild (see "Rebuilding it"); contributors' notes are in `CLAUDE.md`.
+
 **Read it: https://yogaedu-org.github.io/lnmy-reader/**
 
 The page is a single self-contained HTML file. No build step to view it, no network calls,
@@ -62,7 +64,7 @@ reader and everything needed to rebuild it.
 | 5 | official swami order on every tab; theme toggle; no internal source path anywhere |
 | 6 | slideshow opens at 15 s; feedback link to a prefilled issue form; build stamp; flag on the card |
 
-## Feedback## Feedback
+## Feedback
 
 Something wrong on a card? Click the flag at its top right: the issue form opens with the
 card already filled in. Or open an issue directly.
