@@ -1,2 +1,4 @@
 {"ts": "2026-10-12T10:40:23Z", "agent": "swarm 20261012T154840-lnmy-reader", "issue": 1, "status": "claimed", "note": "index.html drift guard test plus CI workflow"}
 {"ts": "2026-10-12T10:42:49Z", "agent": "swarm 20261012T154840-lnmy-reader", "issue": 1, "status": "done", "commit": "176de74", "branch": "swarm/20261012-wave", "note": "drift guard + CI workflow"}
+{"ts": "2026-11-09T08:21:51Z", "agent": "swarm 20261109T140321-lnmy-reader", "issue": 4, "status": "claimed", "note": "remove worktree, gitignore local paths"}
+{"ts": "2026-11-09T08:23:20Z", "agent": "swarm 20261109T140321-lnmy-reader", "issue": 4, "status": "done", "branch": "wave27/lnmy-1", "note": "worktree removed, gitignore"}
