@@ -15,3 +15,5 @@ jobs:
       - run: pip install pytest playwright
       - run: playwright install --with-deps chromium
       - run: python -m pytest tests/ -q
+        env:
+          CI_REQUIRE_BROWSER: "1"
