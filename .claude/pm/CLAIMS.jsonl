@@ -1,2 +1,4 @@
 {"ts": "2026-10-12T10:40:23Z", "agent": "swarm 20261012T154840-lnmy-reader", "issue": 1, "status": "claimed", "note": "index.html drift guard test plus CI workflow"}
 {"ts": "2026-10-12T10:42:49Z", "agent": "swarm 20261012T154840-lnmy-reader", "issue": 1, "status": "done", "commit": "176de74", "branch": "swarm/20261012-wave", "note": "drift guard + CI workflow"}
+{"ts": "2026-11-09T08:26:53Z", "agent": "swarm 20261109T140321-lnmy-reader", "issue": 5, "status": "done", "branch": "wave27/lnmy-6", "note": "CLAUDE.md CI and PR flow; README 13 decks verified"}
+{"ts": "2026-11-09T08:23:20Z", "agent": "swarm 20261109T140321-lnmy-reader", "issue": 1, "status": "claimed", "note": "close-out #1, refresh PM files"}
