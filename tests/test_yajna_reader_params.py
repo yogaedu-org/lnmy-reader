@@ -16,13 +16,18 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import pathlib
 import re
 from urllib.parse import parse_qs, urlparse
 
 import pytest
 
-pw = pytest.importorskip("playwright.sync_api")
+if os.environ.get("CI_REQUIRE_BROWSER"):
+    # CI / the promote gate: a missing playwright must FAIL, not skip 39 of 47 tests green.
+    import playwright.sync_api as pw
+else:
+    pw = pytest.importorskip("playwright.sync_api")
 
 def _reader_dir() -> pathlib.Path:
     """Where the reader's sources live.

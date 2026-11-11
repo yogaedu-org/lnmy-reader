@@ -14,7 +14,7 @@ private working repo; `export_lnmy_reader.py` there copies an allowlist of paths
 
 ## Working here
 
-- Test: `python -m pytest tests/ -q` (the browser guards need playwright).
+- Test: `python -m pytest tests/ -q` (the browser guards need playwright; they skip without it unless `CI_REQUIRE_BROWSER=1`, which CI sets and the promote gate must set, so a missing playwright fails instead of skipping).
 - Every test names the failure it catches. Do not add a test that cannot name one.
 - `build.py` stamps the commit into the page; two builds of the same commit are identical.
 - CI: `.github/workflows/tests.yml` runs the same suite on every push and pull request (it includes `tests/test_index_in_sync.py`, which fails if the committed `index.html` differs from a fresh build).
