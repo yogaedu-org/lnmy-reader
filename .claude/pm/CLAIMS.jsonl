@@ -2,3 +2,5 @@
 {"ts": "2026-10-12T10:42:49Z", "agent": "swarm 20261012T154840-lnmy-reader", "issue": 1, "status": "done", "commit": "176de74", "branch": "swarm/20261012-wave", "note": "drift guard + CI workflow"}
 {"ts": "2026-11-09T19:27:27Z", "agent": "swarm 20261110T010855-lnmy-reader-fix", "issue": 10, "status": "claimed", "note": "save proof evidence for wave-28 PRs 13/14/15"}
 {"ts": "2026-11-09T19:39:59Z", "agent": "swarm 20261110T010855-lnmy-reader-fix", "issue": 10, "status": "done", "commit": "81d00c5", "branch": "wave29/fix-lnmy-reader", "note": "proof evidence saved for PRs 13/14/15"}
+{"ts": "2026-11-09T08:26:53Z", "agent": "swarm 20261109T140321-lnmy-reader", "issue": 5, "status": "done", "branch": "wave27/lnmy-6", "note": "CLAUDE.md CI and PR flow; README 13 decks verified"}
+{"ts": "2026-11-09T08:23:20Z", "agent": "swarm 20261109T140321-lnmy-reader", "issue": 1, "status": "claimed", "note": "close-out #1, refresh PM files"}
