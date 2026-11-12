@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import pathlib
 import subprocess
 import sys
@@ -136,7 +137,13 @@ def apply_patch(patch_path: pathlib.Path, here: pathlib.Path = HERE) -> None:
                         it[k] = e[k]; n_edit += 1
                         if k == "md":
                             text_edits.append(it["title"])
-    dp.write_text(json.dumps(decks, ensure_ascii=False, indent=1), "utf-8", newline="\n")
+    tmp = dp.with_name(dp.name + ".tmp")
+    try:
+        tmp.write_text(json.dumps(decks, ensure_ascii=False, indent=1), "utf-8", newline="\n")
+        os.replace(tmp, dp)  # atomic: an interrupted write never leaves a truncated decks.json
+    except BaseException:
+        tmp.unlink(missing_ok=True)
+        raise
     print(f"applied: {n_order} deck orders, {n_hidden} cards hidden, {n_edit} field edits")
     if text_edits:
         print("TEXT EDITED — run validate.py before build:", "; ".join(text_edits))

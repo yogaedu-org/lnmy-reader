@@ -113,3 +113,26 @@ def test_built_page_carries_no_internal_source_path(tmp_path):
     html = _load_build().build(tmp_path / "r.html").read_text("utf-8")
     assert _corpus_prefix() not in html
     assert '"source_file"' not in html
+
+
+def test_interrupted_apply_leaves_decks_json_untouched(tmp_path, monkeypatch):
+    """A write that dies partway through --apply must not leave a truncated decks.json that then
+    feeds the build. The write goes to a temp file and is swapped in with os.replace."""
+    for name in ("decks.json", "config.json"):
+        (tmp_path / name).write_bytes((READER / name).read_bytes())
+    before = (tmp_path / "decks.json").read_bytes()
+    first = json.loads(before)["decks"][0]
+    patch = tmp_path / "patch.json"
+    patch.write_text(json.dumps({"hidden": [first["items"][0]["id"]]}), "utf-8")
+    real = pathlib.Path.write_text
+
+    def dying(self, data, *a, **kw):
+        real(self, data[: len(data) // 2], *a, **kw)
+        raise OSError("simulated interruption")
+
+    monkeypatch.setattr(pathlib.Path, "write_text", dying)
+    with pytest.raises(OSError):
+        _load_build().apply_patch(patch, tmp_path)
+    monkeypatch.undo()
+    assert (tmp_path / "decks.json").read_bytes() == before
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["config.json", "decks.json", "patch.json"]
