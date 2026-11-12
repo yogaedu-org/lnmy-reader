@@ -46,3 +46,14 @@ def test_the_guard_notices_an_input_edited_without_a_rebuild(tmp_path):
     tpl = work / "template.html"
     tpl.write_text(tpl.read_text("utf-8").replace("<title>", "<title>EDITED ", 1), "utf-8")
     assert _drifts(work, work / "index.html", tmp_path)
+
+
+def test_no_knowledge_graph_output_is_tracked():
+    """CLAUDE.md rule 1: nothing from the corpus lands in this public repo. graphify-out/ holds
+    knowledge-graph output; if it is ever staged or tracked, this fails."""
+    import subprocess
+    root = pathlib.Path(__file__).resolve().parents[1]
+    files = subprocess.run(["git", "ls-files"], cwd=root, capture_output=True, text=True,
+                           encoding="utf-8", check=True).stdout.splitlines()
+    bad = [f for f in files if f.startswith("graphify-out/")]
+    assert not bad, f"knowledge-graph output tracked: {bad[:5]}"
